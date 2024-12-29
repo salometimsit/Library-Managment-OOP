@@ -1,18 +1,16 @@
 class Books:
-    l=[]
-    def __init__(self, title, author, year, genre, copies):
+    def __init__(self, title, author, year, genre, T_copies,Ava_copies):
         self.title = title
         self.author =author
         self.year = year
         self.genre = genre
-        self.copies = copies
-    def __addbook__(self):
-        self.copies += 1
-    def __removebook__(self):
-        if self.copies!=0:
-            self.copies -=1
+        self.T_copies = T_copies
+        self.Ava_copies = Ava_copies
+    def borrow_book(self):
+        if self.Ava_copies != 0:
+            self.Ava_copies -=1
         else:
-            print("No books left to remove")
-            self.copies=0;
-    def __updatebook__(self):
-        self.copies +=1
+            print("No availible books left to remove")
+            self.Ava_copies=0
+    def return_book(self):
+        self.Ava_copies +=1
