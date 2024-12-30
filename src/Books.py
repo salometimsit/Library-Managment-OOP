@@ -8,6 +8,10 @@ class Books:
         self.T_copies = T_copies
         self.Ava_copies = Ava_copies
 
+    @staticmethod
+    def create_book(title, author, year, genre, total_copies):
+        return Books(title, author, year, genre, total_copies, total_copies)
+
     def add_to_library(self):
         self.T_copies += 1
         self.Ava_copies +=1
