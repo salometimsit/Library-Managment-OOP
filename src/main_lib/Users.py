@@ -8,15 +8,15 @@ from src.main_lib.Library import Library
 """
 This class is a for the librarians in the library cause all the system is for them
 """
-
-
 class User:
-    def __init__(self, name, username, role, password):
+    def __init__(self, name, username, role, password, is_encrypted=False):
+        self.library=Library.get_instance()
         self.__name = name
         self.__username = username
         self.__role = role
-        self.__password = self.do_encriptation(str(password))
-        self.save_to_file()
+        self.__password = password if is_encrypted else self.do_encriptation(str(password))
+        if not is_encrypted:
+            self.save_to_file()
 
     def get_name(self):
         return self.__name
@@ -27,7 +27,8 @@ class User:
     def get_role(self):
         return self.__role
 
-    def do_encriptation(self, password):
+    @staticmethod
+    def do_encriptation(password):
         if isinstance(password, str):
             password = password.encode()
         salt = os.urandom(16)
@@ -68,11 +69,9 @@ class User:
             with open("users.csv", mode="r") as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    user = User(row["name"], row["username"], row["role"], row["password"])
-                    user._User__password = row["password"]  # Prevent re-encryption
+                    user = User(row["name"], row["username"], row["role"], row["password"],is_encrypted=True)
                     users.append(user)
         return users
 
     def notify_all(self, message):
-        lib = Library.get_instance()
-        lib.notify(message)
+        self.library.notify(message)
