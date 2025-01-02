@@ -2,7 +2,6 @@ import csv
 import os
 from src.main_lib.Books import Books
 from src.main_lib.Subject import Subject
-from src.main_lib.Users import User
 
 
 class Library(Subject):
@@ -10,6 +9,7 @@ class Library(Subject):
 
     # נסיון
     def __init__(self):
+        from src.main_lib.Books import Books
         super().__init__()
         if Library.__instance is None:
             # Path to books.csv inside Excel_Tables under main_lib
@@ -70,6 +70,7 @@ class Library(Subject):
             print("the book already exists")
 
     def add_user(self, name, username, role, password):
+        from src.main_lib.Users import User
         User(name, username, role, password)
 
     def add_client(self, client):
@@ -88,6 +89,8 @@ class Library(Subject):
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
+    books_library.add_user("itay segev", "itay", "librarian", "it")
+    books_library.add_user("itay segev", "salome", "librarian", "sal")
     print(books_library)
     # Add a new book using the factory method
     books_library.add_book("The Great Gatsby", "F. Scott Fitzgerald", 10, 'NO', "Fiction", 1925)

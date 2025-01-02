@@ -46,15 +46,17 @@ class User:
                 'password': self.__password}
 
     def save_to_file(self):
-        file_exists = os.path.isfile("users.csv")
+        file_path = os.path.join(os.path.dirname(__file__), "Excel_Tables/users.csv")
+        file_path = os.path.abspath(file_path)
+        file_exists = os.path.isfile(file_path)
         existing_users = set()
         if file_exists:
-            with open("users.csv", mode='r', newline='') as file:
+            with open(file_path, mode='r', newline='') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     existing_users.add(row['username'])
         if self.__username not in existing_users:
-            with open("users.csv", mode='a', newline='') as file:
+            with open(file_path, mode='a', newline='') as file:
                 fieldnames = ['name', 'username', 'role', 'password']
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 if not file_exists:
@@ -64,8 +66,8 @@ class User:
     @staticmethod
     def get_all_users():
         users = []
-        if os.path.isfile("users.csv"):
-            with open("users.csv", mode="r") as file:
+        if os.path.isfile("Excel_Tables/users.csv"):
+            with open("Excel_Tables/users.csv", mode="r") as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     user = User(row["name"], row["username"], row["role"], row["password"],is_encrypted=True)
