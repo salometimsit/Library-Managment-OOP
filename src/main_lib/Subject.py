@@ -1,4 +1,4 @@
-class Notifications:
+class Subject:
     def __init__(self):
         self.sub = []
 

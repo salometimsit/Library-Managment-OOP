@@ -4,36 +4,41 @@ import os
 class Books:
     # this is a factory class
     # title, author, is_loaned, copies, genre, year
-    def __init__(self, title, author, total_books, available_copies, genre, year):
-        self.title = title
-        self.author = author
-        self.total_books = total_books
-        self.available_copies = available_copies
-        self.genre = genre
-        self.year = year
+    def __init__(self, title, author, is_loaned, total_books, genre, year):
+        self.__title = title
+        self.__author = author
+        self.__total_books = total_books
+        self.__is_loaned = str(is_loaned)
+        self.__genre = genre
+        self.__year = year
 
     @staticmethod
-    def create_book(title, author, total_books, available_copies, genre, year):
+    def create_book(title, author, total_books, is_loaned, genre, year):
         """Factory method to create and return a Books instance"""
-        return Books(title, author, total_books, available_copies, genre, year)
+        return Books(title, author, total_books, is_loaned, genre, year)
 
     def get_title(self):
-        return self.title
+        return str(self.__title)
 
     def get_author(self):
-        return self.author
+        return str(self.__author)
 
     def get_year(self):
-        return self.year
+        return str(self.__year)
 
     def get_genre(self):
-        return self.genre
+        return str(self.__genre)
 
     def get_total_books(self):
-        return self.total_books
+        return int(self.__total_books)
 
-    def get_available_copies(self):
-        return self.available_copies
+    def get_is_loaned(self):
+        return str(self.__is_loaned)
+
+    def available_to_loan(self):
+        if str(self.__is_loaned)=="No":
+            return True
+        return False
 
     def add_to_library(self):
         """Append book details to the CSV file"""
@@ -42,39 +47,53 @@ class Books:
             with open(file_path, mode='a', newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow([
-                    self.title, self.author, self.total_books,
-                    self.available_copies, self.genre, self.year
+                    self.__title, self.__author, self.__total_books,
+                    self.__is_loaned, self.__genre, self.__year
                 ])
-            print(f"Book added to library: {self.title}")
+            print(f"Book added to library: {self.__title}")
         except Exception as e:
-            print(f"Failed to add book {self.title}: {e}")
+            print(f"Failed to add book {self.__title}: {e}")
 
     def remove_from_library(self):
         """Logic for removing a book - requires implementation"""
-        if self.total_books > 0:
-            self.total_books -= 1
-            if self.available_copies > 0:
-                self.available_copies -= 1
+        if self.__total_books > 0:
+            self.__total_books -= 1
+            if self.__is_loaned > 0:
+                self.__is_loaned -= 1
         else:
             print("No copies left to remove.")
 
     def borrow_book(self):
         """Decrease the available copies if one is borrowed"""
-        if self.available_copies > 0:
-            self.available_copies -= 1
+        if self.__is_loaned > 0:
+            self.__is_loaned -= 1
         else:
             print("No available copies to borrow.")
 
     def return_book(self):
         """Increase the available copies if one is returned"""
-        if self.available_copies < self.total_books:
-            self.available_copies += 1
+        if self.__is_loaned < self.__total_books:
+            self.__is_loaned += 1
         else:
             print("All copies are already in the library.")
+
+    def compare_books(self, book):
+        if(self.get_title()== book.get_title() and self.get_author() == book.get_author()
+                and self.get_year() == book.get_year() and self.get_genre() == book.get_genre()):
+            return True
+        return False
+
 
     def __str__(self):
         """String representation of the book"""
         return (
-            f"Title: {self.title}, Author: {self.author}, Available Copies: {self.available_copies}, "
-            f"Total Copies: {self.total_books}, Genre: {self.genre}, Year: {self.year}"
+            f"Title: {self.__title}, Author: {self.__author}, Available Copies: {self.__is_loaned}, "
+            f"Total Copies: {self.__total_books}, Genre: {self.__genre}, Year: {self.__year}"
         )
+
+
+if __name__ == "__main__":
+    book=Books("salome","salome",10,"Yes","salome",2002)
+    book1=Books("itay","itay",10,"No","itay",1999)
+    print(book.available_to_loan())
+    print(book1.available_to_loan())
