@@ -35,7 +35,6 @@ class Library(Subject):
                     else:
                         print(f"Invalid row: {row}")
 
-
     @staticmethod
     def get_instance():
         if Library.__instance is None:
@@ -43,18 +42,21 @@ class Library(Subject):
         return Library.__instance
 
     def __str__(self):
-        return "\n".join(str(book) for book in self.books)
+        s=""
+        for book in self.books:
+            s+=str(book)+"\n"
+        return s
 
     def get_books(self):
         return self.books
 
     def add_book(self, title, author, total_books, available_copies, genre, year):
         # Use the factory method to create a new book
-        flag=True
+        flag = True
         new_book = Books.create_book(title, author, total_books, available_copies, genre, year)
         for book in self.books:
             if new_book.compare_books(book):
-                flag=False
+                flag = False
         if flag:
             self.books.append(new_book)
 
@@ -67,7 +69,7 @@ class Library(Subject):
         else:
             print("the book already exists")
 
-    def add_user(self ,name, username, role, password):
+    def add_user(self, name, username, role, password):
         User(name, username, role, password)
 
     def add_client(self, client):
@@ -83,13 +85,14 @@ class Library(Subject):
                 writer.writerow([book.get_title(), book.get_author(), available_copies,
                                  book.get_genre(), book.get_year()])
 
+
 if __name__ == '__main__':
     books_library = Library.get_instance()
     print(books_library)
     # Add a new book using the factory method
     books_library.add_book("The Great Gatsby", "F. Scott Fitzgerald", 10, 'NO', "Fiction", 1925)
-    books=books_library.get_books()
+    books = books_library.get_books()
     for book in books:
-        books_library.add_to_available_csv(book,1)
+        books_library.add_to_available_csv(book, 1)
     print("\n\n")
     print(books_library)

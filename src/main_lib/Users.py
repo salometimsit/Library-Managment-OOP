@@ -2,7 +2,6 @@ import base64
 import csv
 import hashlib
 import os
-
 from src.main_lib.Library import Library
 
 """

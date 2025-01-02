@@ -1,36 +1,35 @@
 import tkinter as tk
 from tkinter import messagebox
 from src.main_lib.Users import User
+from src.main_lib.Library import Library
 
 
 class GuiForLibrary:
-    class GuiForLibrary:
-        def login(self, role_var, username_entry, password_entry):
-            from src.main_lib.Library import Library
-            print("Logging in...")
-            role = role_var.get()
-            username = username_entry.get().strip()
-            password = password_entry.get().strip()
+    def login(self, role_var, username_entry, password_entry):
+        print("Logging in...")
+        role = role_var.get()
+        username = username_entry.get().strip()
+        password = password_entry.get().strip()
 
-            print(f"Trying to login with username: {username} and role: {role}")
+        print(f"Trying to login with username: {username} and role: {role}")
 
-            users = User.get_all_users()
-            print(users)
+        users = User.get_all_users()
+        print(users)
 
-            user = next((u for u in users if u.get_username() == username and u.get_role() == role), None)
+        user = next((u for u in users if u.get_username() == username and u.get_role() == role), None)
 
-            if user is None:
-                print("User not found.")
-                messagebox.showerror("Error", "User not found")
-                return
+        if user is None:
+            print("User not found.")
+            messagebox.showerror("Error", "User not found")
+            return
 
-            print(f"User found: {user.get_username()}")  # Debug: Print the found user
+        print(f"User found: {user.get_username()}")  # Debug: Print the found user
 
-            if user.check_password(password):
-                messagebox.showinfo("Welcome", f"{user.get_name()}!")
-            else:
-                print("Password is incorrect.")  # Debug: Check why password is incorrect
-                messagebox.showerror("Error", "Password is incorrect")
+        if user.check_password(password):
+            messagebox.showinfo("Welcome", f"{user.get_name()}!")
+        else:
+            print("Password is incorrect.")  # Debug: Check why password is incorrect
+            messagebox.showerror("Error", "Password is incorrect")
 
     def start(self):
         root = tk.Tk()
@@ -56,12 +55,14 @@ class GuiForLibrary:
         password_entry.pack(pady=5)
 
         # login button
-        login_button = tk.Button(root, text="login", command=lambda: self.login(role_var, username_entry, password_entry))
+        login_button = tk.Button(root, text="login",
+                                 command=lambda: self.login(role_var, username_entry, password_entry))
         login_button.pack(pady=20)
 
         root.mainloop()  # Make sure to call this to display the window
 
+
 if __name__ == '__main__':
     lib = Library.get_instance()
-    lib.add_user("itay segev","itay","librarian","it")
+    lib.add_user("itay segev", "itay", "librarian", "it")
     GuiForLibrary().start()
