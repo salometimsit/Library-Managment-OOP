@@ -23,12 +23,11 @@ class GuiForLibrary:
             messagebox.showerror("Error", "User not found")
             return
 
-        print(f"User found: {user.get_username()}")  # Debug: Print the found user
-
+        print(f"User found: {user.get_username()}")
         if user.check_password(password):
             messagebox.showinfo("Welcome", f"{user.get_name()}!")
         else:
-            print("Password is incorrect.")  # Debug: Check why password is incorrect
+            print("Password is incorrect.")
             messagebox.showerror("Error", "Password is incorrect")
 
     def start(self):

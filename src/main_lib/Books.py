@@ -7,15 +7,15 @@ class Books:
     def __init__(self, title, author, is_loaned, total_books, genre, year):
         self.__title = title
         self.__author = author
-        self.__total_books = total_books
         self.__is_loaned = str(is_loaned)
+        self.__total_books = total_books
         self.__genre = genre
-        self.__year = year
+        self.__year = int(year)
 
     @staticmethod
     def create_book(title, author, total_books, is_loaned, genre, year):
         """Factory method to create and return a Books instance"""
-        return Books(title, author, total_books, is_loaned, genre, year)
+        return Books(title, author, str(is_loaned), total_books, genre, int(year))
 
     def get_title(self):
         return str(self.__title)
