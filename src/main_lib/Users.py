@@ -66,8 +66,10 @@ class User:
     @staticmethod
     def get_all_users():
         users = []
-        if os.path.isfile("Excel_Tables/users.csv"):
-            with open("Excel_Tables/users.csv", mode="r") as file:
+        file_path = os.path.join(os.path.dirname(__file__), "Excel_Tables/users.csv")
+        file_path = os.path.abspath(file_path)
+        if os.path.isfile(file_path):
+            with open(file_path, mode="r") as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     user = User(row["name"], row["username"], row["role"], row["password"],is_encrypted=True)
