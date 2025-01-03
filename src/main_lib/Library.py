@@ -54,7 +54,6 @@ class Library(Subject):
         return self.books
 
     def add_book(self, title, author,  available_copies,total_books, genre, year):
-        # Use the factory method to create a new book
         flag = True
         new_book = Books.create_book(title, author, available_copies,total_books, genre, year)
         for book in self.books:
@@ -62,8 +61,6 @@ class Library(Subject):
                 flag = False
         if flag:
             self.books.append(new_book)
-
-            # Append to CSV file
             with open(self.files[0], mode='a', newline='') as b_csv:
                 writer = csv.writer(b_csv)
                 writer.writerow([new_book.__title, new_book.__author,new_book.__is_loaned, new_book.__total_books,
@@ -83,45 +80,58 @@ class Library(Subject):
         Subject.unsubscribe(self, client)
 
     def add_to_available_csv(self, book, available_copies):
-        if book.available_to_loan():
+        try:
             if self.find_in_csv(book) is None:
                 with open(self.files[1], mode='a', newline='') as b_csv:
                     writer = csv.writer(b_csv)
-                    writer.writerow([book.get_title(),book.get_author(),book.get_is_loaned(),available_copies,book.get_genre(),book.get_year()])
-
+                    if not os.path.isfile(self.files[1]) or os.path.getsize(self.files[1]) == 0:
+                        writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year'])
+                    writer.writerow([book.get_title(),book.get_author(),book.get_is_loaned(),available_copies,book.get_genre(),
+                        book.get_year()])
+                print(f"Book '{book.get_title()}' added to available_books successfully.")
+            else:
+                print(f"Book '{book.get_title()}' already exists in available_books")
+        except Exception as e:
+            print(f"An error occurred while adding the book: {e}")
     def find_in_csv(self, book):
         try:
             df = pd.read_csv(self.files[1])
-            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df['year'] == book.get_year())]
+            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) & (
+                        df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                       (df['year'].astype(int) == int(book.get_year()))]
             if not match.empty:
                 return match.iloc[0].to_dict()
             else:
-                print(f"Book '{book.get_title()}' not found in available_books.csv.")
                 return None
         except FileNotFoundError:
-            print("File not found: available_books.csv")
+            return None
+        except Exception as e:
+            print(f"An error occurred in find_in_csv: {e}")
             return None
 
     def remove_from_available_csv(self, book):
         try:
             df = pd.read_csv(self.files[1])
-            print("CSV Data:", df.head())
-            match = df[
-                (df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df['year'].astype(int) == int(book.get_year()))
-                ]
-
+            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                (df['year'].astype(int) == int(book.get_year()))]
             if match.empty:
                 print(f"Book '{book.get_title()}' not found in available_books.csv.")
                 return
-            df = df[((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+            df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
                         (df['year'].astype(int) == int(book.get_year())))]
             df.to_csv(self.files[1], index=False)
-            match.to_csv(self.files[2], mode='a', index=False)
-
-            print(f"Book '{book.get_title()}' moved to not_available_books.csv successfully.")
+            print(f"Book '{book.get_title()}' removed from available_books.csv.")
+            if not match.empty:
+                if os.path.isfile(self.files[2]):
+                    existing_df = pd.read_csv(self.files[2])
+                    if not existing_df[
+                        (existing_df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+                        (existing_df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                        (existing_df['year'].astype(int) == int(book.get_year()))].empty:
+                        print(f"Book '{book.get_title()}' already exists in not_available_books.csv.")
+                        return
+                match.to_csv(self.files[2], mode='a', index=False, header=not os.path.isfile(self.files[2]))
+                print(f"Book '{book.get_title()}' moved to not_available_books.csv successfully.")
         except FileNotFoundError:
             print("File not found: available_books.csv")
         except Exception as e:
@@ -138,17 +148,15 @@ if __name__ == '__main__':
 
     # Add the books to the library and to the available_books.csv file
     print("Adding books to available_books.csv:")
-    books_library.add_to_available_csv(book1, 5)
-    books_library.add_to_available_csv(book2, 2)
-    books_library.add_to_available_csv(book3, 3)
+    books_library.add_to_available_csv(book1, 2)
+    books_library.add_to_available_csv(book2, 1)
+    books_library.add_to_available_csv(book3, 1)
 
     # Print the current library (for debugging purposes)
     print("\nCurrent Library:")
-    print(books_library)
+    print()
 
     # Test removing a book
     print("\nRemoving a book from available_books.csv:")
     books_library.remove_from_available_csv(book1)
-
-    # Check the available_books.csv and not_available_books.csv files
     print("\nCheck the files for updates.")
