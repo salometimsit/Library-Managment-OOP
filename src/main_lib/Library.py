@@ -140,23 +140,16 @@ class Library(Subject):
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
-
-    # Create a few sample books
     book1 = Books("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925)
     book2 = Books("To Kill a Mockingbird", "Harper Lee", "Yes", 5, "Fiction", 1960)
     book3 = Books("1984", "George Orwell", "No", 7, "Dystopian", 1949)
-
-    # Add the books to the library and to the available_books.csv file
     print("Adding books to available_books.csv:")
     books_library.add_to_available_csv(book1, 2)
     books_library.add_to_available_csv(book2, 1)
     books_library.add_to_available_csv(book3, 1)
 
-    # Print the current library (for debugging purposes)
     print("\nCurrent Library:")
     print()
-
-    # Test removing a book
     print("\nRemoving a book from available_books.csv:")
     books_library.remove_from_available_csv(book1)
     print("\nCheck the files for updates.")
