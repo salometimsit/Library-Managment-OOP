@@ -126,40 +126,8 @@ class Library(Subject):
             return False
         except FileNotFoundError:
             return None
-
-
-
-
-
-
+        
 #MATCH- used to determine if each string in the underlying data of the given series object matches a regular expression
-    # def remove_from_available_csv(self, book):
-    #     try:
-    #         df = pd.read_csv(self.files[1])
-    #         match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-    #             (df['year'].astype(int) == int(book.get_year()))]
-    #         if match.empty:
-    #             print(f"Book '{book.get_title()}' not found in available_books.csv.")
-    #             return
-    #         df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-    #                     (df['year'].astype(int) == int(book.get_year())))]
-    #         df.to_csv(self.files[1], index=False)
-    #         print(f"Book '{book.get_title()}' removed from available_books.csv.")
-    #         if not match.empty:
-    #             if os.path.isfile(self.files[2]):
-    #                 existing_df = pd.read_csv(self.files[2])
-    #                 if not existing_df[
-    #                     (existing_df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-    #                     (existing_df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-    #                     (existing_df['year'].astype(int) == int(book.get_year()))].empty:
-    #                     print(f"Book '{book.get_title()}' already exists in not_available_books.csv.")
-    #                     return
-    #             match.to_csv(self.files[2], mode='a', index=False, header=not os.path.isfile(self.files[2]))
-    #             print(f"Book '{book.get_title()}' moved to not_available_books.csv successfully.")
-    #     except FileNotFoundError:
-    #         print("File not found: available_books.csv")
-    #     except Exception as e:
-    #         print(f"An error occurred while updating the files: {e}")
     def remove_from_available_csv(self, book):
         try:
             df = pd.read_csv(self.files[1])
