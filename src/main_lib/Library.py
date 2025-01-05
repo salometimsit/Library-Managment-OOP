@@ -82,8 +82,8 @@ class Library(Subject):
     def add_to_available_csv(self, book, available_copies):
         try:
             if self.find_in_csv(book) is None:
-                with open(self.files[1], mode='a', newline='') as b_csv:
-                    writer = csv.writer(b_csv)
+                with open(self.files[1], mode='a', newline='') as av_csv:
+                    writer = csv.writer(av_csv)
                     if not os.path.isfile(self.files[1]) or os.path.getsize(self.files[1]) == 0:
                         writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year'])
                     writer.writerow([book.get_title(),book.get_author(),book.get_is_loaned(),available_copies,book.get_genre(),
@@ -93,6 +93,7 @@ class Library(Subject):
                 print(f"Book '{book.get_title()}' already exists in available_books")
         except Exception as e:
             print(f"An error occurred while adding the book: {e}")
+
     def find_in_csv(self, book):
         try:
             df = pd.read_csv(self.files[1])
@@ -109,26 +110,73 @@ class Library(Subject):
             print(f"An error occurred in find_in_csv: {e}")
             return None
 
+    def in_notavailable_book(self, book):
+        try:
+            df = pd.read_csv(self.files[2])
+            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) & (
+                    df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                   (df['year'].astype(int) == int(book.get_year()))]
+            if not match.empty:
+                if not df[
+                    (df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+                    (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                    (df['year'].astype(int) == int(book.get_year()))].empty:
+                    print(f"Book '{book.get_title()}' already exists in not_available_books.csv.")
+                    return  True
+            return False
+        except FileNotFoundError:
+            return None
+
+
+
+
+
+
+#MATCH- used to determine if each string in the underlying data of the given series object matches a regular expression
+    # def remove_from_available_csv(self, book):
+    #     try:
+    #         df = pd.read_csv(self.files[1])
+    #         match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+    #             (df['year'].astype(int) == int(book.get_year()))]
+    #         if match.empty:
+    #             print(f"Book '{book.get_title()}' not found in available_books.csv.")
+    #             return
+    #         df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+    #                     (df['year'].astype(int) == int(book.get_year())))]
+    #         df.to_csv(self.files[1], index=False)
+    #         print(f"Book '{book.get_title()}' removed from available_books.csv.")
+    #         if not match.empty:
+    #             if os.path.isfile(self.files[2]):
+    #                 existing_df = pd.read_csv(self.files[2])
+    #                 if not existing_df[
+    #                     (existing_df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+    #                     (existing_df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+    #                     (existing_df['year'].astype(int) == int(book.get_year()))].empty:
+    #                     print(f"Book '{book.get_title()}' already exists in not_available_books.csv.")
+    #                     return
+    #             match.to_csv(self.files[2], mode='a', index=False, header=not os.path.isfile(self.files[2]))
+    #             print(f"Book '{book.get_title()}' moved to not_available_books.csv successfully.")
+    #     except FileNotFoundError:
+    #         print("File not found: available_books.csv")
+    #     except Exception as e:
+    #         print(f"An error occurred while updating the files: {e}")
     def remove_from_available_csv(self, book):
         try:
             df = pd.read_csv(self.files[1])
-            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df['year'].astype(int) == int(book.get_year()))]
+            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) & (
+                        df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                       (df['year'].astype(int) == int(book.get_year()))]
             if match.empty:
                 print(f"Book '{book.get_title()}' not found in available_books.csv.")
                 return
-            df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &(df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                        (df['year'].astype(int) == int(book.get_year())))]
+            df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) & (
+                        df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                      (df['year'].astype(int) == int(book.get_year())))]
             df.to_csv(self.files[1], index=False)
             print(f"Book '{book.get_title()}' removed from available_books.csv.")
             if not match.empty:
                 if os.path.isfile(self.files[2]):
-                    existing_df = pd.read_csv(self.files[2])
-                    if not existing_df[
-                        (existing_df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                        (existing_df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                        (existing_df['year'].astype(int) == int(book.get_year()))].empty:
-                        print(f"Book '{book.get_title()}' already exists in not_available_books.csv.")
+                    if self.in_notavailable_book(book):
                         return
                 match.to_csv(self.files[2], mode='a', index=False, header=not os.path.isfile(self.files[2]))
                 print(f"Book '{book.get_title()}' moved to not_available_books.csv successfully.")
@@ -136,7 +184,6 @@ class Library(Subject):
             print("File not found: available_books.csv")
         except Exception as e:
             print(f"An error occurred while updating the files: {e}")
-
 
 if __name__ == '__main__':
     books_library = Library.get_instance()

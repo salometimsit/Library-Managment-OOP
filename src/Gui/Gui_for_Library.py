@@ -63,5 +63,6 @@ class GuiForLibrary:
 
 if __name__ == '__main__':
     lib = Library.get_instance()
+
     lib.add_user("itay segev", "itay", "student", "it")
     GuiForLibrary().start()
