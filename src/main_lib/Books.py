@@ -93,7 +93,7 @@ class Books:
 
 
 if __name__ == "__main__":
-    book=Books("salome","salome",10,"Yes","salome",2002)
-    book1=Books("itay","itay",10,"No","itay",1999)
+    book=Books("salome","salome","Yes",10,"salome",2002)
+    book1=Books("itay","itay","No",10,"itay",1999)
     print(book.available_to_loan())
     print(book1.available_to_loan())
