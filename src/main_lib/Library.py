@@ -10,7 +10,7 @@ from src.main_lib.Subject import Subject
 class Library(Subject):
     __instance = None
 
-    # נסיון
+
     def __init__(self):
         from src.main_lib.Books import Books
         super().__init__()
@@ -126,8 +126,8 @@ class Library(Subject):
             return False
         except FileNotFoundError:
             return None
-        
-#MATCH- used to determine if each string in the underlying data of the given series object matches a regular expression
+
+    # MATCH- used to determine if each string in the underlying data of the given series object matches a regular expression
     def remove_from_available_csv(self, book):
         try:
             df = pd.read_csv(self.files[1])
@@ -152,6 +152,8 @@ class Library(Subject):
             print("File not found: available_books.csv")
         except Exception as e:
             print(f"An error occurred while updating the files: {e}")
+
+
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
