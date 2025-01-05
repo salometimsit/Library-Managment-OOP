@@ -32,10 +32,10 @@ class Library(Subject):
             self.__books = []
             with open(self.__files[0], mode='r') as b_csv:
                 reader = csv.reader(b_csv)
-                next(reader, None)  # Skip header row
+                next(reader, None)
                 for row in reader:
                     if len(row) >= 6:
-                        self.books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5]))
+                        self.__books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
                     else:
                         print(f"Invalid row: {row}")
 
@@ -54,10 +54,10 @@ class Library(Subject):
     def get_books(self):
         return self.__books
 
-    def add_book(self, title, author,  available_copies,total_books, genre, year):
+    def add_book(self, title, author, available_copies, total_books, genre, year, popularity):
         flag = True
-        new_book = Books.create_book(title, author, available_copies,total_books, genre, year)
-        for book in self.books:
+        new_book = Books.create_book(title, author, available_copies, total_books, genre, year, popularity)
+        for book in self.__books:
             if new_book.compare_books(book):
                 flag = False
         if flag:
