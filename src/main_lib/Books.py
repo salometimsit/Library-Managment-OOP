@@ -4,13 +4,14 @@ import os
 class Books:
     # this is a factory class
     # title, author, is_loaned, copies, genre, year
-    def __init__(self, title, author, is_loaned, total_books, genre, year):
-        self._title = title
-        self._author = author
-        self._is_loaned = str(is_loaned)
-        self._total_books = total_books
-        self._genre = genre
-        self._year = int(year)
+    def __init__(self, title, author, is_loaned, total_books, genre, year,popularity):
+        self.__title = title
+        self.__author = author
+        self.__is_loaned = str(is_loaned)
+        self.__total_books = total_books
+        self.__genre = genre
+        self.__year = int(year)
+        self.__popularity =popularity
 
     @staticmethod
     def create_book(title, author, total_books, is_loaned, genre, year):
