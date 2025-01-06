@@ -1,4 +1,11 @@
 
+"""
+These classes implement 4 search strategies for Books:
+Search by Title
+Search by Author
+Search by Year
+Search by Publisher
+"""
 class SearchStrategy:
     def search(self,df,value):
         raise NotImplementedError("Every SubClass must implement this method")

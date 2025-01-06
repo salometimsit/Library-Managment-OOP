@@ -6,20 +6,28 @@ from src.main_lib.Rentals import *
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
 
-
 class Library(Subject):
+    """
+    Represents a library system to manage books, users, and rentals.
+    Implements the Singleton pattern.
+
+    Attributes:
+        __instance (Library): Singleton instance of the Library class.
+        __files (list): List of file paths for books, available_books, and not_available_books CSV files.
+        __books (list): List of books currently in the library.
+    """
+
     __instance = None
 
     def __init__(self):
         from src.main_lib.Books import Books
         super().__init__()
         if Library.__instance is None:
-            # Path to books.csv inside Excel_Tables under main_lib
+            # Initialize file paths
             filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
                          'Excel_Tables/not_available_books.csv']
             self.__files = []
             for filename in filenames:
-                # Path to the file inside Excel_Tables under main_lib
                 file_path = os.path.join(os.path.dirname(__file__), filename)
                 file_path = os.path.abspath(file_path)
 
@@ -31,7 +39,7 @@ class Library(Subject):
             self.__books = []
             with open(self.__files[0], mode='r') as b_csv:
                 reader = csv.reader(b_csv)
-                next(reader, None)
+                next(reader, None)  # Skip header
                 for row in reader:
                     if len(row) >= 6:
                         self.__books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
@@ -40,90 +48,114 @@ class Library(Subject):
 
     @staticmethod
     def get_instance():
+        """
+        Returns the singleton instance of the Library class.
+
+        Returns:
+            Library: Singleton instance of the Library.
+        """
         if Library.__instance is None:
             Library.__instance = Library()
         return Library.__instance
 
     def __str__(self):
-        s = ""
-        for book in self.__books:
-            s += str(book) + "\n"
-        return s
+        """
+        Returns a string representation of all books in the library.
+
+        Returns:
+            str: String representation of the books.
+        """
+        return "\n".join(str(book) for book in self.__books)
 
     def get_books(self):
+        """
+        Returns the list of books in the library.
+
+        Returns:
+            list: List of Books instances.
+        """
         return self.__books
 
     def add_book(self, new_book):
-        flag = True
+        """
+        Adds a new book to the library if it does not already exist.
 
+        Args:
+            new_book (Books): Book instance to be added.
+
+        Returns:
+            bool: True if the book was added, False otherwise.
+        """
         if new_book is None:
             return False
+
         for book in self.__books:
             if new_book.compare_books(book):
-                flag = False
-        if flag:
-            self.__books.append(new_book)
-            with open(self.__files[0], mode='a', newline='') as b_csv:
-                writer = csv.writer(b_csv)
-                writer.writerow([new_book.get_title(), new_book.get_author(), new_book.get_is_loaned(), new_book.get_total_books(), new_book.get_genre(), new_book.get_year(), new_book.get_popularity()])
-            # self.add_to_available_csv(new_book, available_copies)
-            print(f"Book added: {new_book}")
-        else:
-            print("the book already exists")
+                print("The book already exists")
+                return False
+
+        self.__books.append(new_book)
+        with open(self.__files[0], mode='a', newline='') as b_csv:
+            writer = csv.writer(b_csv)
+            writer.writerow([new_book.get_title(), new_book.get_author(), new_book.get_is_loaned(),
+                             new_book.get_total_books(), new_book.get_genre(), new_book.get_year(),
+                             new_book.get_popularity()])
+        print(f"Book added: {new_book}")
+        return True
 
     def add_user(self, name, username, role, password):
+        """
+        Adds a new user to the library system.
+
+        Args:
+            name (str): Name of the user.
+            username (str): Username of the user.
+            role (str): Role of the user (e.g., Librarian).
+            password (str): Password for the user.
+        """
         from src.main_lib.Users import User
         User(name, username, role, password)
 
     def add_client(self, client):
+        """
+        Subscribes a client to the library notifications.
+
+        Args:
+            client (Observer): Client to subscribe.
+        """
         Subject.sub(self, client)
 
     def remove_client(self, client):
-        Subject.unsubscribe(self,client)
+        """
+        Unsubscribes a client from the library notifications.
 
-    def rent_book(self,book):
+        Args:
+            client (Observer): Client to unsubscribe.
+        """
+        Subject.unsubscribe(self, client)
+
+    def rent_book(self, book):
+        """
+        Rents a book to a client.
+
+        Args:
+            book (Books): Book to be rented.
+        """
         rentals = Rentals.get_instance()
         rentals.rent_books(book)
+
     def return_book(self, book):
+        """
+        Returns a book from a client.
+
+        Args:
+            book (Books): Book to be returned.
+        """
         rentals = Rentals.get_instance()
         rentals.return_book(book)
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
-    # book1 = Books("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925)
-    # book2 = Books("To Kill a Mockingbird", "Harper Lee", "Yes", 5, "Fiction", 1960)
-    # book3 = Books("1984", "George Orwell", "No", 7, "Dystopian", 1949)
-    # print("Adding books to available_books.csv:")
-    # books_library.add_to_available_csv(book1, 2)
-    # books_library.add_to_available_csv(book2, 1)
-    # books_library.add_to_available_csv(book3, 1)
-    #
-    # print("\nCurrent Library:")
-    # print()
-    # print("\nRemoving a book from available_books.csv:")
-    # books_library.remove_from_available_csv(book1)
-    # print("\nCheck the files for updates.")
-    book=Books.create_book("The Great Gataby", "F. Scott Fitzgerald", 10, "No", "Fiction", 1925,0)
+    book = Books.create_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "No", "Fiction", 1925, 0)
     books_library.add_book(book)
-    book.set_popularity(2)
-    file_path = os.path.join(os.path.dirname(__file__), 'Excel_Tables/books.csv')
-    file_path = os.path.abspath(file_path)
-
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-    df = pd.read_csv(file_path)
-    s=SearchBooks()
-    print()
-    s.set_strategy("title")
-    print(s.search("nd"))
-    print()
-    s.set_strategy("author")
-    print(s.search("lom"))
-    print()
-    s.set_strategy("year")
-    print(s.search(1999))
-    print()
-    s.set_strategy("GENRE")
-    print(s.search("Drama"))
-    print()
-
+    print(books_library)

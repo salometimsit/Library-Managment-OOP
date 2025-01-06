@@ -1,5 +1,7 @@
 from enum import Enum
-
+"""
+This class represent all the possible categories for books
+"""
 class BooksCategory(Enum):
     Drama = "Drama"
     Fiction = "Fiction"
