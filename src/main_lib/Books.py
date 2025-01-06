@@ -38,6 +38,8 @@ class Books:
 
     def get_popularity(self):
         return int(self.__popularity)
+    def set_popularity(self, popularity):
+        self.__popularity = popularity
 
     def available_to_loan(self):
         if str(self.__is_loaned)=="No":

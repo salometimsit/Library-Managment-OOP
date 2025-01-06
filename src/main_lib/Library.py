@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 from src.main_lib.Books import Books
+from src.main_lib.Rentals import *
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
 
@@ -65,7 +66,7 @@ class Library(Subject):
             with open(self.__files[0], mode='a', newline='') as b_csv:
                 writer = csv.writer(b_csv)
                 writer.writerow([title, author, available_copies, total_books, genre, year, popularity])
-            self.add_to_available_csv(new_book, available_copies)
+            # self.add_to_available_csv(new_book, available_copies)
             print(f"Book added: {new_book}")
         else:
             print("the book already exists")
@@ -78,8 +79,14 @@ class Library(Subject):
         Subject.sub(self, client)
 
     def remove_client(self, client):
-        Subject.unsubscribe(self, client)
+        Subject.unsubscribe(self,client)
 
+    def rent_book(self,book):
+        rentals = Rentals.get_instance()
+        rentals.rent_books(book)
+    def return_book(self, book):
+        rentals = Rentals.get_instance()
+        rentals.return_book(book)
 
 if __name__ == '__main__':
     # books_library = Library.get_instance()
@@ -103,7 +110,7 @@ if __name__ == '__main__':
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
     df = pd.read_csv(file_path)
-    s=Search_Books()
+    s=SearchBooks()
     print()
     s.set_strategy("title")
     print(s.search("nd"))
