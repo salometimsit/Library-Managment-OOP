@@ -58,6 +58,8 @@ class Library(Subject):
     def add_book(self, title, author, available_copies, total_books, genre, year, popularity):
         flag = True
         new_book = Books.create_book(title, author, available_copies, total_books, genre, year, popularity)
+        if new_book is None:
+            return False
         for book in self.__books:
             if new_book.compare_books(book):
                 flag = False

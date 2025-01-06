@@ -1,6 +1,9 @@
 import csv
 import os
 
+from src.main_lib.BooksCategory import BooksCategory
+
+
 class Books:
     # this is a factory class
     # title, author, is_loaned, copies, genre, year
@@ -16,6 +19,10 @@ class Books:
     @staticmethod
     def create_book(title, author, total_books, is_loaned, genre, year,popularity ):
         """Factory method to create and return a Books instance"""
+        if genre not in BooksCategory:
+            print("Genre is not a valid genre")
+            return None
+
         return Books(title, author, str(is_loaned), total_books, genre, int(year),int(popularity))
 
     def get_title(self):
@@ -100,7 +107,11 @@ class Books:
 
 
 if __name__ == "__main__":
-    book=Books("salome","salome","Yes",10,"salome",2002,0)
-    book1=Books("itay","itay","No",10,"itay",1999,0)
-    print(book.available_to_loan())
-    print(book1.available_to_loan())
+    from Library import Library
+    lib=Library.get_instance()
+    lib.add_book("salome","salome",5,10,"salome",2002,0)
+    lib.add_book("itay","itay","No",10,"Drama",1999,0)
+    #print(book.available_to_loan())
+    # print(book1.available_to_loan())
+    # book1.return_book()
+    # print(book1.available_to_loan())

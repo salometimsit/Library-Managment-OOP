@@ -1,0 +1,22 @@
+from enum import Enum
+
+class BooksCategory(Enum):
+    Drama = "Drama"
+    Fiction = "Fiction"
+    Dystopian = "Dystopian"
+    Classic = "Classic"
+    Adventure = "Adventure"
+    Romance = "Romance"
+    Historical_Fiction = "Historical Fiction"
+    Psychological_Drama = "Psychological Drama"
+    Philosophy = "Philosophy"
+    Epic_Poetry = "Epic Poetry"
+    Gothic_Fiction = "Gothic Fiction"
+    Gothic_Romance = "Gothic Romance"
+    Realism = "Realism"
+    Modernism = "Modernism"
+    Satire = "Satire"
+    Science_Fiction = "Science Fiction"
+    Tragedy = "Tragedy"
+    Fantasy = "Fantasy"
+    Comedy = "Comedy"
