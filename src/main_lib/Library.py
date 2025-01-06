@@ -2,8 +2,6 @@ import csv
 import os
 
 import pandas as pd
-
-from src.main_lib.Books import Books
 from src.main_lib.Rentals import *
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
@@ -55,9 +53,9 @@ class Library(Subject):
     def get_books(self):
         return self.__books
 
-    def add_book(self, title, author, available_copies, total_books, genre, year, popularity):
+    def add_book(self, new_book):
         flag = True
-        new_book = Books.create_book(title, author, available_copies, total_books, genre, year, popularity)
+
         if new_book is None:
             return False
         for book in self.__books:
@@ -67,7 +65,7 @@ class Library(Subject):
             self.__books.append(new_book)
             with open(self.__files[0], mode='a', newline='') as b_csv:
                 writer = csv.writer(b_csv)
-                writer.writerow([title, author, available_copies, total_books, genre, year, popularity])
+                writer.writerow([new_book.get_title(), new_book.get_author(), new_book.get_is_loaned(), new_book.get_total_books(), new_book.get_genre(), new_book.get_year(), new_book.get_popularity()])
             # self.add_to_available_csv(new_book, available_copies)
             print(f"Book added: {new_book}")
         else:
@@ -91,7 +89,7 @@ class Library(Subject):
         rentals.return_book(book)
 
 if __name__ == '__main__':
-    # books_library = Library.get_instance()
+    books_library = Library.get_instance()
     # book1 = Books("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925)
     # book2 = Books("To Kill a Mockingbird", "Harper Lee", "Yes", 5, "Fiction", 1960)
     # book3 = Books("1984", "George Orwell", "No", 7, "Dystopian", 1949)
@@ -105,7 +103,9 @@ if __name__ == '__main__':
     # print("\nRemoving a book from available_books.csv:")
     # books_library.remove_from_available_csv(book1)
     # print("\nCheck the files for updates.")
-
+    book=Books.create_book("The Great Gataby", "F. Scott Fitzgerald", 10, "No", "Fiction", 1925,0)
+    books_library.add_book(book)
+    book.set_popularity(2)
     file_path = os.path.join(os.path.dirname(__file__), 'Excel_Tables/books.csv')
     file_path = os.path.abspath(file_path)
 

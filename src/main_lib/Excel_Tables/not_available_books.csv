@@ -1,3 +1,2 @@
-title,author,is_loaned,copies,genre,year
-The Great Gatsby,F. Scott Fitzgerald,No,2,Fiction,1925
-1984,George Orwell,No,3,Dystopian,1949,1
+title,author,is_loaned,copies,genre,year,popularity
+1984,George Orwell,No,1,Dystopian,1949,1
