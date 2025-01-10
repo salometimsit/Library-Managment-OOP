@@ -144,7 +144,7 @@ class Library(Subject):
             book (Books): Book to be rented.
         """
         rentals = Rentals.get_instance()
-        rentals.rent_books(book)
+        return rentals.rent_books(book)
 
     def return_book(self, book):
         """
@@ -163,6 +163,6 @@ class Library(Subject):
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
-    book = Books.create_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "No", "Fiction", 1925, 0)
+    book = Books.create_book("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925, 0)
     books_library.add_book(book)
     print(books_library)

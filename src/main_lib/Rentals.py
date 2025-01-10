@@ -75,13 +75,16 @@ class Rentals:
                 df.loc[con, 'copies'] = curr - 1
                 df.to_csv(self.__files[1], index=False)
                 print(f"Book '{book.get_title()}' rented successfully, remaining copies: {curr - 1}")
+                return True
             elif curr == 1:
                 print(f"You cannot rent the book '{book.get_title()}', no available copies.")
                 book.set_popularity(book.get_popularity() + 1)
                 self.add_to_not_available_csv(book, 1)
                 self.remove_from_csv(book, self.__files[1])
+                return False
         else:
             print(f"You cannot rent the book '{book.get_title()}', no available copies.")
+            return False
 
     def return_books(self, book):
         """

@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+
+from src.main_lib.Books import Books
 from src.main_lib.Users import User
 from src.main_lib.Library import Library
 
@@ -59,35 +61,25 @@ class MainScreen(WindowInterface):
 
     def display(self):
         self.root.title("Main Screen")
-        self.root.geometry("400x400")
+        self.root.geometry("600x400")
 
         tk.Label(self.root, text="Welcome to the Library!", font=("Helvetica", 16, "bold")).pack(pady=20)
 
         button_frame = tk.Frame(self.root)
         button_frame.pack(pady=10)
 
-        tk.Button(button_frame, text="Add Book", width=20, command=lambda: print("Add Book selected")).grid(row=0,
-                                                                                                            column=0,
-                                                                                                            padx=10,
-                                                                                                            pady=10)
-        tk.Button(button_frame, text="Remove Book", width=20, command=lambda: print("Remove Book selected")).grid(row=0,
-                                                                                                                  column=1,
-                                                                                                                  padx=10,
-                                                                                                                  pady=10)
-        tk.Button(button_frame, text="Search Book", width=20, command=self.open_search_screen).grid(row=1, column=0,
-                                                                                                    padx=10, pady=10)
-        tk.Button(button_frame, text="View Books", width=20, command=lambda: print("View Books selected")).grid(row=1,
-                                                                                                                column=1,
-                                                                                                                padx=10,
-                                                                                                                pady=10)
-        tk.Button(button_frame, text="Lend Book", width=20, command=lambda: print("Lend Book selected")).grid(row=2,
-                                                                                                              column=0,
-                                                                                                              padx=10,
-                                                                                                              pady=10)
-        tk.Button(button_frame, text="Return Book", width=20, command=lambda: print("Return Book selected")).grid(row=2,
-                                                                                                                  column=1,
-                                                                                                                  padx=10,
-                                                                                                                  pady=10)
+        tk.Button(button_frame, text="Add Book", width=20, command=lambda:
+                    print("Add Book selected")).grid(row=0, column=0,padx=10,pady=10)
+        tk.Button(button_frame, text="Remove Book", width=20, command=lambda:
+                    print("Remove Book selected")).grid(row=0,column=1,padx=10,pady=10)
+        tk.Button(button_frame, text="Search Book", width=20, command=
+                    self.open_search_screen).grid(row=1, column=0,  padx=10, pady=10)
+        tk.Button(button_frame, text="View Books", width=20, command=lambda:
+                    print("View Books selected")).grid(row=1,column=1, padx=10,pady=10)
+        tk.Button(button_frame, text="Lend Book", width=20, command=lambda:
+                    print("Lend Book selected")).grid(row=2, column=0, padx=10,  pady=10)
+        tk.Button(button_frame, text="Return Book", width=20, command=lambda:
+                    print("Return Book selected")).grid(row=2,  column=1,  padx=10,  pady=10)
 
         tk.Button(self.root, text="Logout", width=20, command=self.logout).pack(pady=20)
 
@@ -143,6 +135,7 @@ class RegisterScreen(WindowInterface):
 class SearchScreen(WindowInterface):
     def __init__(self, root, library):
         super().__init__(root, library)
+        self.selected_row = None  # לשמירת השורה הנבחרת
 
     def display(self):
         self.root.title("Search Books")
@@ -160,15 +153,16 @@ class SearchScreen(WindowInterface):
         search_term_entry = tk.Entry(self.root)
         search_term_entry.pack(pady=5)
 
-        tree = ttk.Treeview(self.root)
+        tree = ttk.Treeview(self.root, selectmode="browse")
         tree.pack(fill="both", expand=True, pady=10)
+        tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
         scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-        tk.Button(self.root, text="Search",
-                  command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
+        tk.Button(self.root, text="Search", command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
+        tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)  # כפתור השכרה
         tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
 
     def perform_search(self, strategy_var, search_term_entry, tree):
@@ -185,12 +179,31 @@ class SearchScreen(WindowInterface):
             for col in results.columns:
                 tree.heading(col, text=col)
                 tree.column(col, width=150)
-            for _, row in results.iterrows():
-                tree.insert("", "end", values=list(row))
+            for index, row in results.iterrows():
+                tree.insert("", "end", iid=index, values=list(row))
+
+    def on_row_select(self, event):
+        tree = event.widget
+        selected_item = tree.selection()
+        if selected_item:
+            self.selected_row = tree.item(selected_item, "values")
+
+    def rent_book(self):
+        if self.selected_row:
+            title, author, is_loaned, total_books, genre, year, popularity = self.selected_row
+            book = Books.create_book(title, author, is_loaned, int(total_books) , genre, int(year), int(popularity))
+            success = self.library.rent_book(book)
+            if success:
+                messagebox.showinfo("Success", f"Book '{title}' has been rented.")
+            else:
+                messagebox.showerror("Error", f"Could not rent book '{title}'.")
+        else:
+            messagebox.showerror("Error", "No book selected!")
 
     def go_back(self):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
+
 
 
 if __name__ == '__main__':
