@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import pandas as pd
 
 from src.main_lib.Books import Books
 from src.main_lib.Users import User
@@ -132,15 +133,17 @@ class RegisterScreen(WindowInterface):
             LoginScreen(tk.Tk(), self.library).display()
 
 
-class SearchScreen(WindowInterface):
+class SearchScreen:
     def __init__(self, root, library):
-        super().__init__(root, library)
-        self.selected_row = None  # לשמירת השורה הנבחרת
+        self.root = root
+        self.library = library
+        self.selected_row = None
 
     def display(self):
         self.root.title("Search Books")
         self.root.geometry("800x600")
 
+        # בחירת אסטרטגיית חיפוש
         tk.Label(self.root, text="Select Search Strategy:").pack(pady=10)
         strategy_var = tk.StringVar(value="title")
 
@@ -149,10 +152,12 @@ class SearchScreen(WindowInterface):
         tk.Radiobutton(self.root, text="Year", variable=strategy_var, value="year").pack(anchor="w")
         tk.Radiobutton(self.root, text="Genre", variable=strategy_var, value="genre").pack(anchor="w")
 
+        # הזנת מונח חיפוש
         tk.Label(self.root, text="Enter Search Term:").pack(pady=10)
         search_term_entry = tk.Entry(self.root)
         search_term_entry.pack(pady=5)
 
+        # תצוגת עץ להצגת תוצאות החיפוש
         tree = ttk.Treeview(self.root, selectmode="browse")
         tree.pack(fill="both", expand=True, pady=10)
         tree.bind("<<TreeviewSelect>>", self.on_row_select)
@@ -161,26 +166,37 @@ class SearchScreen(WindowInterface):
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-        tk.Button(self.root, text="Search", command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
-        tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)  # כפתור השכרה
+        # כפתורים
+        tk.Button(self.root, text="Search",
+                  command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
+        tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)
         tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
 
     def perform_search(self, strategy_var, search_term_entry, tree):
-        strategy = strategy_var.get()
-        search_term = search_term_entry.get().strip()
-        results = self.library.search_book(search_term, strategy)
+        strategy = strategy_var.get()  # קבלת אסטרטגיה
+        search_term = search_term_entry.get().strip()  # קבלת מונח החיפוש
 
+        # איפוס העץ
         tree.delete(*tree.get_children())
-        if results.empty:
+
+        # חיפוש ספרים
+        results = self.library.search_book(search_term, strategy)  # החיפוש מחזיר רשימה של מילונים
+
+        if not results:  # אם אין תוצאות
             messagebox.showinfo("Info", "No results found.")
-        else:
-            tree["columns"] = list(results.columns)
-            tree["show"] = "headings"
-            for col in results.columns:
-                tree.heading(col, text=col)
-                tree.column(col, width=150)
-            for index, row in results.iterrows():
-                tree.insert("", "end", iid=index, values=list(row))
+            return
+
+        # הצגת עמודות ב-TreeView
+        tree["columns"] = list(results[0].keys())
+        tree["show"] = "headings"
+
+        for col in results[0].keys():
+            tree.heading(col, text=col)
+            tree.column(col, width=150)
+
+        # הוספת נתונים לעץ
+        for index, book in enumerate(results):
+            tree.insert("", "end", iid=index, values=list(book.values()))
 
     def on_row_select(self, event):
         tree = event.widget
@@ -190,15 +206,31 @@ class SearchScreen(WindowInterface):
 
     def rent_book(self):
         if self.selected_row:
-            title, author, is_loaned, total_books, genre, year, popularity = self.selected_row
-            book = Books.create_book(title, author, is_loaned, int(total_books) , genre, int(year), int(popularity))
+            # פרטי הספר הנבחר
+            keys = ["title", "author", "is_loaned", "total_books", "genre", "year", "popularity"]
+            book_data = {key: value for key, value in zip(keys, self.selected_row)}
+
+            # יצירת אובייקט ספר מתוך הנתונים שנבחרו
+            book = Books.create_book(
+                title=book_data["title"],
+                author=book_data["author"],
+                is_loaned=book_data["is_loaned"],
+                total_books=int(book_data["total_books"]),
+                genre=book_data["genre"],
+                year=int(book_data["year"]),
+                popularity=int(book_data["popularity"])
+            )
+
+            # ניסיון להשכיר את הספר
             success = self.library.rent_book(book)
+
             if success:
-                messagebox.showinfo("Success", f"Book '{title}' has been rented.")
+                messagebox.showinfo("Success", f"Book '{book_data['title']}' has been rented.")
             else:
-                messagebox.showerror("Error", f"Could not rent book '{title}'.")
+                messagebox.showerror("Error", f"Could not rent book '{book_data['title']}'.")
         else:
             messagebox.showerror("Error", "No book selected!")
+
 
     def go_back(self):
         self.root.destroy()

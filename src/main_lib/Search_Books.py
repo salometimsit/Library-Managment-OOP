@@ -25,6 +25,17 @@ class SearchBooks:
         self.__author_strategy = AuthorSearch()
         self.__year_strategy = YearSearch()
         self.__genre_strategy = GenreSearch()
+        filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
+                     'Excel_Tables/not_available_books.csv']
+        self.__files = []
+        for filename in filenames:
+            file_path = os.path.join(os.path.dirname(__file__), filename)
+            file_path = os.path.abspath(file_path)
+
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
+
+            self.__files.append(file_path)
 
     def set_strategy(self, strategy):
         """
@@ -36,18 +47,19 @@ class SearchBooks:
         Raises:
             Exception: If the strategy type is invalid.
         """
-        if strategy.lower() == "title":
+        strategy=strategy.lower()
+        if strategy == "title":
             self.__strategy = self.__title_strategy
-        elif strategy.lower() == 'author':
+        elif strategy== 'author':
             self.__strategy = self.__author_strategy
-        elif strategy.lower() == 'year':
+        elif strategy == 'year':
             self.__strategy = self.__year_strategy
-        elif strategy.lower() == 'genre':
+        elif strategy == 'genre':
             self.__strategy = self.__genre_strategy
         else:
             raise Exception('Invalid strategy')
 
-    def search(self, name):
+    def search_all(self, name):
         """
         Executes the search using the current strategy.
 
@@ -56,15 +68,16 @@ class SearchBooks:
 
         Returns:
             pd.DataFrame: The search results as a DataFrame.
-
-        Raises:
-            FileNotFoundError: If the books CSV file is not found.
         """
-        file_path = os.path.join(os.path.dirname(__file__), 'Excel_Tables/books.csv')
-        file_path = os.path.abspath(file_path)
 
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
-
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(self.__files[0])
         return self.__strategy.search(df, name)
+
+    def search_loaned(self,name):
+        df = pd.read_csv(self.__files[1])
+        return self.__strategy.search(df, name)
+
+    def search_available(self,name):
+        df = pd.read_csv(self.__files[2])
+        return self.__strategy.search(df, name)
+

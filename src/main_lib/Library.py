@@ -154,11 +154,11 @@ class Library(Subject):
             book (Books): Book to be returned.
         """
         rentals = Rentals.get_instance()
-        rentals.return_book(book)
+        return rentals.return_books(book)
 
     def search_book(self, name,strategy):
         self.searcher.set_strategy(strategy)
-        return self.searcher.search(name)
+        return self.searcher.search_all(name)
 
 
 if __name__ == '__main__':

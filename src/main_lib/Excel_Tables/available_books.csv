@@ -1,5 +1,5 @@
 title,author,is_loaned,copies,genre,year,popularity
-The Catcher in the Rye,J.D. Salinger,No,3,Fiction,1951,0
+The Catcher in the Rye,J.D. Salinger,No,2,Fiction,1951,0
 Moby Dick,Herman Melville,No,1,Adventure,1851,0
 War and Peace,Leo Tolstoy,No,2,Historical Fiction,1869,0
 Great Expectations,Charles Dickens,No,3,Classic,1861,0
@@ -13,6 +13,6 @@ Brave New World,Aldous Huxley,No,5,Dystopian,1932,0
 The Grapes of Wrath,John Steinbeck,No,2,Fiction,1939,0
 The Old Man and the Sea,Ernest Hemingway,No,3,Fiction,1952,0
 Harry Potter and the Philosopher's Stone,J.K. Rowling,No,7,Fantasy,1997,0
-The Name of the Wind,Patrick Rothfuss,No,3,Fantasy,2007,0
+The Name of the Wind,Patrick Rothfuss,No,2,Fantasy,2007,0
 The Handmaid's Tale,Margaret Atwood,No,3,Dystopian,1985,0
 The Great Gatsby,F. Scott Fitzgerald,No,2,Fiction,1925,0

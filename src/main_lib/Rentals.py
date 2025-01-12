@@ -2,7 +2,11 @@ import csv
 import os
 
 import pandas as pd
+
+from src.main_lib.BookIterator import BookIterator
 from src.main_lib.Books import Books
+from src.main_lib.Search_Books import SearchBooks
+
 
 class Rentals:
     """
@@ -45,6 +49,7 @@ class Rentals:
                         self.__books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
                     else:
                         print(f"Invalid row: {row}")
+            self.__search=SearchBooks().set_strategy("title")
 
     @staticmethod
     def get_instance():
@@ -76,13 +81,38 @@ class Rentals:
                 df.loc[con, 'copies'] = curr - 1
                 df.to_csv(self.__files[1], index=False)
                 print(f"Book '{book.get_title()}' rented successfully, remaining copies: {curr - 1}")
+                c = self.find_in_csv(book, self.__files[2])
+                if c is not None:
+                    curr = int(c['copies'])
+                    df = pd.read_csv(self.__files[2])
+                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                           (df['year'].astype(int) == int(book.get_year())))
+                    df.loc[con, 'copies'] = curr + 1
+                    df.to_csv(self.__files[2], index=False)
+                else:
+                    self.add_to_not_available_csv(book,1)
             elif curr == 1:
                 print(f"You cannot rent the book '{book.get_title()}', no available copies.")
                 book.set_popularity(book.get_popularity() + 1)
-                self.add_to_not_available_csv(book, 1)
+                c = self.find_in_csv(book, self.__files[2])
+                if c is not None:
+                    curr = int(c['copies'])
+                    df = pd.read_csv(self.__files[2])
+                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                           (df['year'].astype(int) == int(book.get_year())))
+                    df.loc[con, 'copies'] = curr + 1
+                    df.loc[con,'is_loaned']="No"
+                    df.to_csv(self.__files[2], index=False)
+                else:
+                    self.add_to_not_available_csv(book, 1)
+
                 self.remove_from_csv(book, self.__files[1])
         else:
             print(f"You cannot rent the book '{book.get_title()}', no available copies.")
+            return False
+        return True
     def popular_list(self):
         pass
 
@@ -104,13 +134,26 @@ class Rentals:
                        (df['year'].astype(int) == int(book.get_year())))
                 df.loc[con, 'copies'] = curr - 1
                 df.to_csv(self.__files[2], index=False)
-                print(f"Book '{book.get_title()}' returned successfully, remaining copies: {curr - 1}")
+                print(f"Book '{book.get_title()}' returned successfully, remaining copies: {curr + 1}")
+                c = self.find_in_csv(book, self.__files[1])
+                if c is not None:
+                    curr = int(c['copies'])
+                    df = pd.read_csv(self.__files[1])
+                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                           (df['year'].astype(int) == int(book.get_year())))
+                    df.loc[con, 'copies'] = curr + 1
+                    df.to_csv(self.__files[1], index=False)
+                else:
+                    self.add_to_available_csv(book,1)
             elif curr == 1:
                 print(f"You cannot return the book '{book.get_title()}', no loaned copies.")
                 self.add_to_available_csv(book, book.get_total_books())
                 self.remove_from_csv(book, self.__files[2])
         else:
             print(f"You cannot rent the book '{book.get_title()}', no loaned copies.")
+            return False
+        return True
 
     def add_to_available_csv(self, book, total_available_copies):
         """
@@ -160,6 +203,7 @@ class Rentals:
 
     def find_in_csv(self, book, file):
         """
+        all, available, loaned
         Finds a book in the specified CSV file.
 
         Args:
@@ -169,6 +213,19 @@ class Rentals:
         Returns:
             dict: A dictionary of the book details if found, else None.
         """
+        # df=None
+        # if file == "all":
+        #     df=self.__search.search_all(book.get_title())
+        # elif file == "available":
+        #     df=self.__search.search_available(book.get_title())
+        # elif file == "loanded":
+        #     df=self.__search.search_loaned(book.get_title())
+        # books_iter=BookIterator(df)
+        # for booki in books_iter:
+        #     if book.get_year==booki.get_year() and booki.getauthor==book.get_author():
+        #         return booki
+        # return None
+
         try:
             df = pd.read_csv(file)
             match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
@@ -199,7 +256,6 @@ class Rentals:
                        (df['year'].astype(int) == int(book.get_year()))]
             if match.empty:
                 print(f"Book '{book.get_title()}' not found in {file}.")
-                return
             df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
                       (df['year'].astype(int) == int(book.get_year())))]
@@ -213,4 +269,5 @@ class Rentals:
 if __name__ == '__main__':
     rentals = Rentals.get_instance()
     book1 = Books("The Great Gatsby","F. Scott Fitzgerald","No",2,"Fiction",1925,0)
+    rentals.rent_books(book1)
     rentals.return_books(book1)
