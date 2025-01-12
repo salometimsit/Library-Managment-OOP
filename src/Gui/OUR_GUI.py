@@ -143,7 +143,6 @@ class SearchScreen:
         self.root.title("Search Books")
         self.root.geometry("800x600")
 
-        # בחירת אסטרטגיית חיפוש
         tk.Label(self.root, text="Select Search Strategy:").pack(pady=10)
         strategy_var = tk.StringVar(value="title")
 
@@ -152,12 +151,10 @@ class SearchScreen:
         tk.Radiobutton(self.root, text="Year", variable=strategy_var, value="year").pack(anchor="w")
         tk.Radiobutton(self.root, text="Genre", variable=strategy_var, value="genre").pack(anchor="w")
 
-        # הזנת מונח חיפוש
         tk.Label(self.root, text="Enter Search Term:").pack(pady=10)
         search_term_entry = tk.Entry(self.root)
         search_term_entry.pack(pady=5)
 
-        # תצוגת עץ להצגת תוצאות החיפוש
         tree = ttk.Treeview(self.root, selectmode="browse")
         tree.pack(fill="both", expand=True, pady=10)
         tree.bind("<<TreeviewSelect>>", self.on_row_select)
@@ -166,27 +163,23 @@ class SearchScreen:
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-        # כפתורים
         tk.Button(self.root, text="Search",
                   command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
         tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)
         tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
 
     def perform_search(self, strategy_var, search_term_entry, tree):
-        strategy = strategy_var.get()  # קבלת אסטרטגיה
-        search_term = search_term_entry.get().strip()  # קבלת מונח החיפוש
+        strategy = strategy_var.get()
+        search_term = search_term_entry.get().strip()
 
-        # איפוס העץ
         tree.delete(*tree.get_children())
 
-        # חיפוש ספרים
-        results = self.library.search_book(search_term, strategy)  # החיפוש מחזיר רשימה של מילונים
+        results = self.library.search_book(search_term, strategy)
 
-        if not results:  # אם אין תוצאות
+        if not results:
             messagebox.showinfo("Info", "No results found.")
             return
 
-        # הצגת עמודות ב-TreeView
         tree["columns"] = list(results[0].keys())
         tree["show"] = "headings"
 
@@ -194,7 +187,6 @@ class SearchScreen:
             tree.heading(col, text=col)
             tree.column(col, width=150)
 
-        # הוספת נתונים לעץ
         for index, book in enumerate(results):
             tree.insert("", "end", iid=index, values=list(book.values()))
 
@@ -206,11 +198,10 @@ class SearchScreen:
 
     def rent_book(self):
         if self.selected_row:
-            # פרטי הספר הנבחר
+
             keys = ["title", "author", "is_loaned", "total_books", "genre", "year", "popularity"]
             book_data = {key: value for key, value in zip(keys, self.selected_row)}
 
-            # יצירת אובייקט ספר מתוך הנתונים שנבחרו
             book = Books.create_book(
                 title=book_data["title"],
                 author=book_data["author"],
@@ -221,7 +212,6 @@ class SearchScreen:
                 popularity=int(book_data["popularity"])
             )
 
-            # ניסיון להשכיר את הספר
             success = self.library.rent_book(book)
 
             if success:

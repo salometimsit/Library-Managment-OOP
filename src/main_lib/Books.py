@@ -96,6 +96,17 @@ class Books:
         """Checks if the book is available to loan."""
         return str(self.__is_loaned) == "No"
 
+    def to_dict(self):
+        return {
+            "title": self.__title,
+            "author": self.__author,
+            "is_loaned": self.__is_loaned,
+            "copies": self.__total_books,
+            "genre": self.__genre,
+            "year": self.__year,
+            "popularity": self.__popularity,
+        }
+
     def compare_books(self, book):
         """
         Compares the current book with another book.

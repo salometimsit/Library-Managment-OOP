@@ -2,6 +2,8 @@ import csv
 import os
 
 import pandas as pd
+
+from src.main_lib.BooksFactory import BooksFactory
 from src.main_lib.Rentals import *
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
@@ -36,6 +38,7 @@ class Library(Subject):
                     raise FileNotFoundError(f"File not found: {file_path}")
 
                 self.__files.append(file_path)
+            self.facbooks = BooksFactory(self.__files)
 
             self.__books = []
             with open(self.__files[0], mode='r') as b_csv:
@@ -77,7 +80,7 @@ class Library(Subject):
         """
         return self.__books
 
-    def add_book(self, new_book):
+    def add_book(self, title, author, copies,genre,year):
         """
         Adds a new book to the library if it does not already exist.
 
@@ -87,22 +90,7 @@ class Library(Subject):
         Returns:
             bool: True if the book was added, False otherwise.
         """
-        if new_book is None:
-            return False
-
-        for book in self.__books:
-            if new_book.compare_books(book):
-                print("The book already exists")
-                return False
-
-        self.__books.append(new_book)
-        with open(self.__files[0], mode='a', newline='') as b_csv:
-            writer = csv.writer(b_csv)
-            writer.writerow([new_book.get_title(), new_book.get_author(), new_book.get_is_loaned(),
-                             new_book.get_total_books(), new_book.get_genre(), new_book.get_year(),
-                             new_book.get_popularity()])
-        print(f"Book added: {new_book}")
-        return True
+        return self.facbooks.create_books(title, author, copies,genre,year)
 
     def add_user(self, name, username, role, password):
         """
@@ -163,6 +151,5 @@ class Library(Subject):
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
-    book = Books.create_book("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925, 0)
-    books_library.add_book(book)
+    books_library.add_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "Fiction", 1925)
     print(books_library)
