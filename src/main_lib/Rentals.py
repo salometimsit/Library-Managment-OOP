@@ -14,7 +14,7 @@ class Rentals:
         __files (list): List of file paths for books, available_books, and not_available_books CSV files.
         __books (list): List of books managed for rentals.
     """
-
+    global popularlist
     __instance = None
 
     def __init__(self):
@@ -82,6 +82,9 @@ class Rentals:
                 self.remove_from_csv(book, self.__files[1])
         else:
             print(f"You cannot rent the book '{book.get_title()}', no available copies.")
+    def popular_list(self):
+        pass
+
 
     def return_books(self, book):
         """
@@ -93,7 +96,7 @@ class Rentals:
         b = self.find_in_csv(book, self.__files[2])
         if b is not None:
             curr = int(b['copies'])
-            if curr > 0:
+            if curr >1:
                 df = pd.read_csv(self.__files[2])
                 con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                        (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
@@ -101,12 +104,12 @@ class Rentals:
                 df.loc[con, 'copies'] = curr - 1
                 df.to_csv(self.__files[2], index=False)
                 print(f"Book '{book.get_title()}' returned successfully, remaining copies: {curr - 1}")
-            elif curr == 0:
-                print(f"You cannot return the book '{book.get_title()}', no available copies.")
-                self.add_to_available_csv(book, 1)
+            elif curr == 1:
+                print(f"You cannot return the book '{book.get_title()}', no loaned copies.")
+                self.add_to_available_csv(book, book.get_total_books())
                 self.remove_from_csv(book, self.__files[2])
         else:
-            print(f"You cannot rent the book '{book.get_title()}', no available copies.")
+            print(f"You cannot rent the book '{book.get_title()}', no loaned copies.")
 
     def add_to_available_csv(self, book, total_available_copies):
         """
@@ -123,7 +126,7 @@ class Rentals:
                     if not os.path.isfile(self.__files[1]) or os.path.getsize(self.__files[1]) == 0:
                         writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year', 'popularity'])
                     writer.writerow(
-                        [book.get_title(), book.get_author(), book.get_is_loaned(), total_available_copies,
+                        [book.get_title(), book.get_author(), "No", total_available_copies,
                          book.get_genre(), book.get_year(), book.get_popularity()])
                 print(f"Book '{book.get_title()}' added to available_books successfully.")
             else:
@@ -208,5 +211,5 @@ class Rentals:
 
 if __name__ == '__main__':
     rentals = Rentals.get_instance()
-    book1 = Books("1984", "George Orwell", "No", 3, "Dystopian", 1949, 0)
+    book1 = Books("The Great Gatsby","F. Scott Fitzgerald","No",2,"Fiction",1925,0)
     rentals.return_books(book1)
