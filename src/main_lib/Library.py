@@ -23,6 +23,7 @@ class Library(Subject):
         from src.main_lib.Books import Books
         super().__init__()
         if Library.__instance is None:
+            self.searcher = SearchBooks()
             # Initialize file paths
             filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
                          'Excel_Tables/not_available_books.csv']
@@ -116,6 +117,7 @@ class Library(Subject):
         from src.main_lib.Users import User
         User(name, username, role, password)
 
+
     def add_client(self, client):
         """
         Subscribes a client to the library notifications.
@@ -142,7 +144,7 @@ class Library(Subject):
             book (Books): Book to be rented.
         """
         rentals = Rentals.get_instance()
-        rentals.rent_books(book)
+        return rentals.rent_books(book)
 
     def return_book(self, book):
         """
@@ -154,8 +156,13 @@ class Library(Subject):
         rentals = Rentals.get_instance()
         rentals.return_book(book)
 
+    def search_book(self, name,strategy):
+        self.searcher.set_strategy(strategy)
+        return self.searcher.search(name)
+
+
 if __name__ == '__main__':
     books_library = Library.get_instance()
-    book = Books.create_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "No", "Fiction", 1925, 0)
+    book = Books.create_book("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925, 0)
     books_library.add_book(book)
     print(books_library)

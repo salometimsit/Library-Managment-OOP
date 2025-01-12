@@ -112,6 +112,7 @@ class User:
                     writer.writeheader()
                 writer.writerow(self.convert_dictionary())
 
+
     @staticmethod
     def get_all_users():
         """

@@ -39,7 +39,7 @@ class Books:
         self.__popularity = popularity
 
     @staticmethod
-    def create_book(title, author, total_books, is_loaned, genre, year, popularity):
+    def create_book(title, author, is_loaned, total_books, genre, year, popularity):
         """
         Factory method to create and return a Books instance.
 
