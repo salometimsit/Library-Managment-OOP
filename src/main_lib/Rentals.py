@@ -22,6 +22,7 @@ class Rentals:
         Initializes the Rentals instance and loads book data from CSV files.
         """
         if Rentals.__instance is None:
+
             # Initialize file paths
             filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
                          'Excel_Tables/not_available_books.csv']
