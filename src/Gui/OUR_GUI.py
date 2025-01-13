@@ -462,46 +462,67 @@ class RemoveBookScreen(WindowInterface):
         author = self.author_entry.get()
         category = self.category_combobox.get()
         year = self.year_entry.get()
+
         if not title or not author or not category or not year:
             messagebox.showerror("Error", "All fields must be filled!")
             return
+
         try:
             year = int(year)
         except ValueError:
             Logger.log_add_message("book removed fail")
             messagebox.showerror("Error", "Year must be integer!")
             return
+
         try:
             main_lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "main_lib"))
             file_path = os.path.join(main_lib_path, "Excel_Tables", "books.csv")
             df = pd.read_csv(file_path)
+
+            matching_books = df[(df['title'] == title) & (df['author'] == author) &
+                                (df['genre'] == category) & (df['year'] == year)]
+
+            if matching_books.empty:
+                Logger.log_add_message("book removed fail")
+                messagebox.showerror("Error", "Book not found!")
+                return
+
+            book_data = matching_books.iloc[0].to_dict()
+
+            book = Books(
+                title=book_data['title'],
+                is_loaned=book_data['is_loaned'],
+                author=book_data['author'],
+                total_books=book_data["copies"],
+                genre=book_data['genre'],
+                year=book_data['year'],
+                popularity=book_data['popularity']
+            )
+
+            try:
+                ans = self.library.delete_book(book)
+            except Exception as e:
+                Logger.log_add_message("book removed fail")
+                messagebox.showerror("Error", f"Book could not be deleted!")
+                return
+
+            if ans:
+                Logger.log_add_message("book removed successfully")
+                messagebox.showinfo("Success", f"Book '{book_data['title']}' has been deleted.")
+                self.clear_fields()
+                return
+            else:
+                Logger.log_add_message("book removed fail")
+                messagebox.showerror("Error", "Book could not be deleted!")
+                return
+
         except FileNotFoundError:
             Logger.log_add_message("book removed fail")
             messagebox.showerror("Error", "Books database file not found!")
             return
-        matching_books = df[(df['title'] == title) & (df['author'] == author) & (df['genre'] == category) &
-                            (df['year'] == year)]
-        if matching_books.empty:
+        except Exception as e:
             Logger.log_add_message("book removed fail")
-            messagebox.showerror("Error", "Book not found!")
-            return
-        book_data = matching_books.iloc[0].to_dict()
-        book = Books(title=book_data['title'], is_loaned=book_data['is_loaned'], author=book_data['author'],
-                     total_books=book_data["copies"],
-                     genre=book_data['genre'], year=book_data['year'], popularity=book_data['popularity'])
-        try:
-            ans = self.library.remove_book(book)
-        except Exception:
-            Logger.log_add_message("book removed fail")
-            messagebox.showerror("Error", "Book could not be deleted!")
-            return
-        if ans:
-            messagebox.showinfo("Success", f"Book '{book_data['title']}' has been deleted.")
-            self.clear_fields()
-            return
-        else:
-            Logger.log_add_message("book removed fail")
-            messagebox.showerror("Error", "Book could not be deleted!")
+            messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
             return
 
     def clear_fields(self):
