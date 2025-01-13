@@ -2,7 +2,8 @@ import os
 from zoneinfo import available_timezones
 
 import pandas as pd
-from Books import *
+from src.main_lib.Books import Books
+from src.main_lib.BooksCategory import BooksCategory
 
 from src.main_lib.Search_Books import SearchBooks
 
@@ -19,12 +20,12 @@ class BooksFactory:
 
         if not filtered_df.empty:
             df.loc[(df['author'] == author) & (df['title'] == title) &
-                   (df['genre'] == genre) & (df['year'] == year), "copies"] += copies
+                   (df['genre'] == genre) & (df['year'] == year), "copies"] += int(copies)
             df.loc[(df['author'] == author) & (df['title'] == title) &
                    (df['genre'] == genre) & (df['year'] == year), "is_loaned"] = "No"
 
         else:
-            new_book = Books(title, author, "No", copies, genre, year, 0)
+            new_book = Books(title, author, "No", int(copies), genre, year, 0)
             df = pd.concat([df, pd.DataFrame([new_book.to_dict()])], ignore_index=True)
 
         book = df.loc[(df['author'] == author) & (df['title'] == title) &
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     b=BooksFactory(__files)
     ans=b.create_books("To Kill a Mockingbird","Harper Lee", 5,"Fiction",1960)
     ans2=b.create_books("Pride and Prejudice","Jane Austen",2,"Romance",1813)
-    ans3=b.create_books("itay segev life story","itay segev",3,"Realism",1999)
+    ans3=b.create_books("salome timsit life story","salome timsit",3,"Realism",2002)
     print(ans)
     print(ans2)
     print(ans3)

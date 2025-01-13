@@ -5,6 +5,7 @@ import pandas as pd
 
 from src.main_lib.BookIterator import BookIterator
 from src.main_lib.Books import Books
+from src.main_lib.Logger import Logger
 from src.main_lib.Search_Books import SearchBooks
 
 
@@ -155,6 +156,7 @@ class Rentals:
         self.change_popularity_inbook(book,df.loc[con, 'popularity'])
         df.to_csv(self.__files[2], index=False)
         print("added popularity successfully")
+
 
     def return_books(self, book):
         """

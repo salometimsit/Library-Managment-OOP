@@ -74,10 +74,10 @@ class SearchBooks:
         return self.__strategy.search(df, name)
 
     def search_loaned(self,name):
-        df = pd.read_csv(self.__files[1])
+        df = pd.read_csv(self.__files[2])
         return self.__strategy.search(df, name)
 
     def search_available(self,name):
-        df = pd.read_csv(self.__files[2])
+        df = pd.read_csv(self.__files[1])
         return self.__strategy.search(df, name)
 

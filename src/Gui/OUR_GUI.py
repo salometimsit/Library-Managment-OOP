@@ -1,8 +1,12 @@
+import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
 
 from src.main_lib.Books import Books
+from src.main_lib.BooksCategory import BooksCategory
+from src.main_lib.Delete_Books import DeleteBooks
+from src.main_lib.Logger import Logger
 from src.main_lib.Users import User
 from src.main_lib.Library import Library
 
@@ -45,10 +49,12 @@ class LoginScreen(WindowInterface):
         user = next((u for u in users if u.get_username() == username), None)
 
         if user and user.check_password(password):
-            messagebox.showinfo("Welcome", f"{user.get_name()}!")
+            Logger.log_add_message("logged in successfully")
+            messagebox.showinfo("Welcome", f"hello {user.get_name()}!")
             self.root.destroy()
             MainScreen(tk.Tk(), self.library).display()
         else:
+            Logger.log_add_message("logged in fail")
             messagebox.showerror("Error", "Invalid username or password")
 
     def register_new_user(self):
@@ -70,17 +76,17 @@ class MainScreen(WindowInterface):
         button_frame.pack(pady=10)
 
         tk.Button(button_frame, text="Add Book", width=20, command=lambda:
-                    print("Add Book selected")).grid(row=0, column=0,padx=10,pady=10)
+        self.open_add_book_screen()).grid(row=0, column=0, padx=10, pady=10)
         tk.Button(button_frame, text="Remove Book", width=20, command=lambda:
-                    print("Remove Book selected")).grid(row=0,column=1,padx=10,pady=10)
+        self.open_remove_book_screen()).grid(row=0, column=1, padx=10, pady=10)
         tk.Button(button_frame, text="Search Book", width=20, command=
-                    self.open_search_screen).grid(row=1, column=0,  padx=10, pady=10)
+        self.open_search_screen).grid(row=1, column=0, padx=10, pady=10)
         tk.Button(button_frame, text="View Books", width=20, command=lambda:
-                    print("View Books selected")).grid(row=1,column=1, padx=10,pady=10)
+        print("View Books selected")).grid(row=1, column=1, padx=10, pady=10)
         tk.Button(button_frame, text="Lend Book", width=20, command=lambda:
-                    print("Lend Book selected")).grid(row=2, column=0, padx=10,  pady=10)
+        print("Lend Book selected")).grid(row=2, column=0, padx=10, pady=10)
         tk.Button(button_frame, text="Return Book", width=20, command=lambda:
-                    print("Return Book selected")).grid(row=2,  column=1,  padx=10,  pady=10)
+        print("Return Book selected")).grid(row=2, column=1, padx=10, pady=10)
 
         tk.Button(self.root, text="Logout", width=20, command=self.logout).pack(pady=20)
 
@@ -88,9 +94,22 @@ class MainScreen(WindowInterface):
         self.root.destroy()
         SearchScreen(tk.Tk(), self.library).display()
 
-    def logout(self):
+    def open_add_book_screen(self):
         self.root.destroy()
-        LoginScreen(tk.Tk(), self.library).display()
+        AddBookScreen(tk.Tk(), self.library).display()
+
+    def open_remove_book_screen(self):
+        self.root.destroy()
+        RemoveBookScreen(tk.Tk(), self.library).display()
+
+    def logout(self):
+        try:
+            self.root.destroy()
+            Logger.log_add_message("logged out successfully")
+            LoginScreen(tk.Tk(), self.library).display()
+        except Exception as e:
+            Logger.log_add_message(f"Logout failed: {str(e)}")
+            messagebox.showerror("Error", "Logout failed. Please try again.")
 
 
 class RegisterScreen(WindowInterface):
@@ -125,18 +144,19 @@ class RegisterScreen(WindowInterface):
 
         users = User.get_all_users()
         if any(u.get_username() == username for u in users):
+            Logger.log_add_message("registered fail")
             messagebox.showerror("Error", "Username already registered")
         else:
             self.library.add_user(username, full_name, "librarian", password)
+            Logger.log_add_message("registered successfully")
             messagebox.showinfo("Success", "User registered successfully!")
             self.root.destroy()
             LoginScreen(tk.Tk(), self.library).display()
 
 
-class SearchScreen:
+class SearchScreen(WindowInterface):
     def __init__(self, root, library):
-        self.root = root
-        self.library = library
+        super().__init__(root, library)
         self.selected_row = None
 
     def display(self):
@@ -221,10 +241,189 @@ class SearchScreen:
         else:
             messagebox.showerror("Error", "No book selected!")
 
+    def go_back(self):
+        self.root.destroy()
+        MainScreen(tk.Tk(), self.library).display()
+
+
+class AddBookScreen(WindowInterface):
+    def __init__(self, root, library):
+        super().__init__(root, library)
+        self.selected_row = None
+
+    def display(self):
+
+        self.root.title("Add Book to Library")
+        self.root.geometry("350x350")
+
+        self.title_label = tk.Label(self.root, text="Book Title:")
+        self.title_label.grid(row=0, column=0, padx=10, pady=10)
+        self.title_entry = tk.Entry(self.root)
+        self.title_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        self.author_label = tk.Label(self.root, text="Author:")
+        self.author_label.grid(row=1, column=0, padx=10, pady=10)
+        self.author_entry = tk.Entry(self.root)
+        self.author_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        self.copies_label = tk.Label(self.root, text="Copies:")
+        self.copies_label.grid(row=2, column=0, padx=10, pady=10)
+        self.copies_entry = tk.Entry(self.root)
+        self.copies_entry.grid(row=2, column=1, padx=10, pady=10)
+
+        self.category_label = tk.Label(self.root, text="Category:")
+        self.category_label.grid(row=3, column=0, padx=10, pady=10)
+        self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in BooksCategory])
+        self.category_combobox.grid(row=3, column=1, padx=10, pady=10)
+
+        self.year_label = tk.Label(self.root, text="Year:")
+        self.year_label.grid(row=4, column=0, padx=10, pady=10)
+        self.year_entry = tk.Entry(self.root)
+        self.year_entry.grid(row=4, column=1, padx=10, pady=10)
+
+        self.add_button = tk.Button(self.root, text="Add Book", command=self.add_book)
+        self.add_button.grid(row=5, column=0, columnspan=2, pady=20)
+
+        self.back_button = tk.Button(self.root, text="Back", command=self.go_back)
+        self.back_button.grid(row=6, column=0, columnspan=2, pady=20)
+
+
+    def add_book(self):
+        title = self.title_entry.get()
+        author = self.author_entry.get()
+        copies = self.copies_entry.get()
+        category = self.category_combobox.get()
+        year = self.year_entry.get()
+
+        if not title or not author or not copies or not category or not year:
+            messagebox.showerror("Error", "All fields must be filled!")
+            return
+
+        try:
+            copies = int(copies)
+            year = int(year)
+        except ValueError:
+            messagebox.showerror("Error", "Copies and Year must be integers!")
+            return
+
+        success = self.library.add_book(title, author, copies, category, year)
+
+        if success:
+            messagebox.showinfo("Success", f"Book '{title}' added successfully!")
+            self.clear_fields()
+        else:
+            messagebox.showwarning("Warning", f"Book '{title}' already exists. Copies updated.")
+
+    def clear_fields(self):
+        self.title_entry.delete(0, tk.END)
+        self.author_entry.delete(0, tk.END)
+        self.copies_entry.delete(0, tk.END)
+        self.category_combobox.set('')
+        self.year_entry.delete(0, tk.END)
 
     def go_back(self):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
+
+class RemoveBookScreen(WindowInterface):
+    from src.main_lib.Books import Books
+    def __init__(self, root, library):
+        super().__init__(root, library)
+        self.selected_row = None
+
+    def display(self):
+        self.root.title("Remove Book from Library")
+        self.root.geometry("350x350")
+
+        self.title_label = tk.Label(self.root, text="Book Title:")
+        self.title_label.grid(row=0, column=0, padx=10, pady=10)
+        self.title_entry = tk.Entry(self.root)
+        self.title_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        self.author_label = tk.Label(self.root, text="Author:")
+        self.author_label.grid(row=1, column=0, padx=10, pady=10)
+        self.author_entry = tk.Entry(self.root)
+        self.author_entry.grid(row=1, column=1, padx=10, pady=10)
+
+
+        self.category_label = tk.Label(self.root, text="Category:")
+        self.category_label.grid(row=2, column=0, padx=10, pady=10)
+        self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in BooksCategory])
+        self.category_combobox.grid(row=2, column=1, padx=10, pady=10)
+
+        self.year_label = tk.Label(self.root, text="Year:")
+        self.year_label.grid(row=3, column=0, padx=10, pady=10)
+        self.year_entry = tk.Entry(self.root)
+        self.year_entry.grid(row=3, column=1, padx=10, pady=10)
+
+        self.add_button = tk.Button(self.root, text="Remove Book", command=self.remove_book)
+        self.add_button.grid(row=4, column=0, columnspan=2, pady=20)
+
+        self.back_button = tk.Button(self.root, text="Back", command=self.go_back)
+        self.back_button.grid(row=5, column=0, columnspan=2, pady=20)
+
+    def remove_book(self):
+        ans=False
+        title = self.title_entry.get()
+        author = self.author_entry.get()
+        category = self.category_combobox.get()
+        year = self.year_entry.get()
+        if not title or not author or not category or not year:
+            messagebox.showerror("Error", "All fields must be filled!")
+            return
+        try:
+            year = int(year)
+        except ValueError:
+            Logger.log_add_message("book removed fail")
+            messagebox.showerror("Error", "Year must be integer!")
+            return
+        try:
+            main_lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "main_lib"))
+            file_path = os.path.join(main_lib_path, "Excel_Tables", "books.csv")
+            df = pd.read_csv(file_path)
+        except FileNotFoundError:
+            Logger.log_add_message("book removed fail")
+            messagebox.showerror("Error", "Books database file not found!")
+            return
+        matching_books = df[(df['title'] == title) &(df['author'] == author) &(df['genre'] == category) &
+            (df['year'] == year)]
+        if matching_books.empty:
+            Logger.log_add_message("book removed fail")
+            messagebox.showerror("Error", "Book not found!")
+            return
+        book_data = matching_books.iloc[0].to_dict()
+        book = Books(title=book_data['title'],is_loaned=book_data['is_loaned'],author=book_data['author'],total_books=book_data["copies"],
+                    genre=book_data['genre'],year=book_data['year'],popularity=book_data['popularity'])
+        try:
+            ans=self.library.remove_book(book)
+        except Exception:
+            Logger.log_add_message("book removed fail")
+            messagebox.showerror("Error", "Book could not be deleted!")
+            return
+        if ans:
+            messagebox.showinfo("Success", f"Book '{book_data['title']}' has been deleted.")
+            self.clear_fields()
+            return
+        else:
+            Logger.log_add_message("book removed fail")
+            messagebox.showerror("Error", "Book could not be deleted!")
+            return
+
+    def clear_fields(self):
+        self.title_entry.delete(0, tk.END)
+        self.author_entry.delete(0, tk.END)
+        self.category_combobox.set('')
+        self.year_entry.delete(0, tk.END)
+
+    def go_back(self):
+        self.root.destroy()
+        MainScreen(tk.Tk(), self.library).display()
+
+
+
+
+
+
 
 
 

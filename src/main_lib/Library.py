@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 from src.main_lib.BooksFactory import BooksFactory
+from src.main_lib.Delete_Books import DeleteBooks
 from src.main_lib.Rentals import *
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
@@ -79,7 +80,7 @@ class Library(Subject):
             list: List of Books instances.
         """
         return self.__books
-
+    @Logger.log_method_call("Book added")
     def add_book(self, title, author, copies,genre,year):
         """
         Adds a new book to the library if it does not already exist.
@@ -91,6 +92,11 @@ class Library(Subject):
             bool: True if the book was added, False otherwise.
         """
         return self.facbooks.create_books(title, author, copies,genre,year)
+
+    @Logger.log_method_call("book removed")
+    def delete_book(self,book):
+        print(book)
+        return DeleteBooks.delete_books(book)
 
     def add_user(self, name, username, role, password):
         """
@@ -105,25 +111,7 @@ class Library(Subject):
         from src.main_lib.Users import User
         User(name, username, role, password)
 
-
-    def add_client(self, client):
-        """
-        Subscribes a client to the library notifications.
-
-        Args:
-            client (Observer): Client to subscribe.
-        """
-        Subject.sub(self, client)
-
-    def remove_client(self, client):
-        """
-        Unsubscribes a client from the library notifications.
-
-        Args:
-            client (Observer): Client to unsubscribe.
-        """
-        Subject.unsubscribe(self, client)
-
+    @Logger.log_method_call("Book Borrowed")
     def rent_book(self, book):
         """
         Rents a book to a client.
@@ -134,6 +122,7 @@ class Library(Subject):
         rentals = Rentals.get_instance()
         return rentals.rent_books(book)
 
+    @Logger.log_method_call("Book Returned")
     def return_book(self, book):
         """
         Returns a book from a client.
@@ -144,12 +133,57 @@ class Library(Subject):
         rentals = Rentals.get_instance()
         return rentals.return_books(book)
 
+    def display_all_books(self):
+        df=pd.DataFrame(self.__files[0])
+        if df.empty:
+            Logger.log_add_message("Displayed all books fail")
+            raise FileNotFoundError("File not found")
+        Logger.log_add_message("Displayed all books successfully")
+        return df.to_dict(orient='records')
+
+    def display_not_available_books(self):
+        df=pd.DataFrame(self.__files[2])
+        if df.empty:
+            Logger.log_add_message("Displayed borrowed books fail")
+            raise FileNotFoundError("File not found")
+        Logger.log_add_message("Displayed borrowed books successfully")
+        return df.to_dict(orient='records')
+
+    def display_available_books(self):
+        df=pd.DataFrame(self.__files[1])
+        if df.empty:
+            Logger.log_add_message("Displayed available books fail")
+            raise FileNotFoundError("File not found")
+        Logger.log_add_message("Displayed available books successfully")
+        return df.to_dict(orient='records')
+
+    def display_popular_books(self):
+        df=pd.DataFrame(self.__files[0])
+        if df.empty:
+            Logger.log_add_message("Displayed popular books fail")
+            raise FileNotFoundError("File not found")
+        if 'popularity' not in df.columns:
+            Logger.log_add_message("Displayed popular books fail")
+            raise KeyError("Column 'popularity' not found in the dataset")
+        top_10_books = df.sort_values(by='popularity', ascending=False).head(10)
+        Logger.log_add_message("Displayed popular books successfully")
+        return top_10_books.to_dict(orient='records')
+
+
     def search_book(self, name,strategy):
         self.searcher.set_strategy(strategy)
-        return self.searcher.search_all(name)
+        df=self.searcher.search_all(name)
+        if df=={}:
+            Logger.log_add_message(f"Search book '{name}' by {strategy} name completed fail")
+        else:
+            Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
+        return df
+
 
 
 if __name__ == '__main__':
     books_library = Library.get_instance()
-    books_library.add_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "Fiction", 1925)
+    #books_library.add_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "Fiction", 1925)
+    book=Books("eytan life story","eytan nalimov","No",3,"Psychological Drama",2004,0)
+    books_library.delete_book(book)
     print(books_library)

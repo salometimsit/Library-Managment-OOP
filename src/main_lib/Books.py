@@ -33,7 +33,7 @@ class Books:
         self.__title = title
         self.__author = author
         self.__is_loaned = str(is_loaned)
-        self.__total_books = total_books
+        self.__total_books = int(total_books)
         self.__genre = genre
         self.__year = int(year)
         self.__popularity = popularity
