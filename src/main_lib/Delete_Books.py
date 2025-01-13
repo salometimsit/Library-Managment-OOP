@@ -22,15 +22,12 @@ class DeleteBooks:
 
     @staticmethod
     def delete_books(book):
-        Logger.log_add_message(book)
         sb = SearchBooks()
         sb.set_strategy("title")
         l_dict = sb.search_loaned(book.get_title())
         if not len(l_dict) == 0:
-            print("1")
             raise Exception("Delete failed, book is currently borrowed.")
 
-        # Step 1: Check if the book exists in `not_available_books.csv`
         try:
             df_not_available = pd.read_csv(DeleteBooks.__files[2])  # not_available_books.csv
             match = df_not_available[
@@ -39,19 +36,15 @@ class DeleteBooks:
                 (df_not_available['year'].astype(int) == int(book.get_year()))
                 ]
             if not match.empty:
-                print("2")
                 raise Exception("Delete failed, book is not available and cannot be removed.")
         except FileNotFoundError:
-            print("3")
             raise FileNotFoundError("Not available books file not found.")
         except Exception as e:
-            print("4")
             raise Exception(f"Error while checking not available books: {e}")
 
-        # Step 2: Check if the book exists in `books.csv` and `available_books.csv`
         try:
-            df_books = pd.read_csv(DeleteBooks.__files[0])  # books.csv
-            df_available = pd.read_csv(DeleteBooks.__files[1])  # available_books.csv
+            df_books = pd.read_csv(DeleteBooks.__files[0])
+            df_available = pd.read_csv(DeleteBooks.__files[1])
 
             book_in_books = df_books[
                 (df_books['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
@@ -66,19 +59,16 @@ class DeleteBooks:
                 ]
 
             if book_in_books.empty and book_in_available.empty:
-                print("5")
                 raise Exception("Delete failed, book not found in books or available books.")
 
-            # Step 3: Proceed with deletion if book is found in either books or available books
             if not book_in_books.empty:
-                DeleteBooks.delete_from_csv(DeleteBooks.__files[0], book)  # books.csv
+                DeleteBooks.delete_from_csv(DeleteBooks.__files[0], book)
 
             if not book_in_available.empty:
-                DeleteBooks.delete_from_csv(DeleteBooks.__files[1], book)  # available_books.csv
+                DeleteBooks.delete_from_csv(DeleteBooks.__files[1], book)
             return True
 
         except Exception:
-            print("6")
             raise Exception("Delete failed, book could not be deleted.")
 
     @staticmethod
