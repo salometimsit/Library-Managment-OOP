@@ -7,6 +7,7 @@ from src.main_lib.Books import Books
 from src.main_lib.BooksCategory import BooksCategory
 from src.main_lib.Delete_Books import DeleteBooks
 from src.main_lib.Logger import Logger
+from src.main_lib.Rentals import Rentals
 from src.main_lib.Users import User
 from src.main_lib.Library import Library
 
@@ -82,7 +83,7 @@ class MainScreen(WindowInterface):
         tk.Button(button_frame, text="Search Book", width=20, command=
         self.open_search_screen).grid(row=1, column=0, padx=10, pady=10)
         tk.Button(button_frame, text="View Books", width=20, command=lambda:
-        print("View Books selected")).grid(row=1, column=1, padx=10, pady=10)
+        self.open_display_books_screen()).grid(row=1, column=1, padx=10, pady=10)
         tk.Button(button_frame, text="Lend Book", width=20, command=lambda:
         print("Lend Book selected")).grid(row=2, column=0, padx=10, pady=10)
         tk.Button(button_frame, text="Return Book", width=20, command=lambda:
@@ -101,6 +102,10 @@ class MainScreen(WindowInterface):
     def open_remove_book_screen(self):
         self.root.destroy()
         RemoveBookScreen(tk.Tk(), self.library).display()
+
+    def open_display_books_screen(self):
+        self.root.destroy()
+        DisplayBooksScreen(tk.Tk(), self.library).display()
 
     def logout(self):
         try:
@@ -222,7 +227,7 @@ class SearchScreen(WindowInterface):
             keys = ["title", "author", "is_loaned", "total_books", "genre", "year", "popularity"]
             book_data = {key: value for key, value in zip(keys, self.selected_row)}
 
-            book = Books.create_book(
+            book = Books(
                 title=book_data["title"],
                 author=book_data["author"],
                 is_loaned=book_data["is_loaned"],
@@ -238,6 +243,8 @@ class SearchScreen(WindowInterface):
                 messagebox.showinfo("Success", f"Book '{book_data['title']}' has been rented.")
             else:
                 messagebox.showerror("Error", f"Could not rent book '{book_data['title']}'.")
+                self.open_add_details_screen(book)
+
         else:
             messagebox.showerror("Error", "No book selected!")
 
@@ -245,6 +252,94 @@ class SearchScreen(WindowInterface):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
 
+    def open_add_details_screen(self, book):
+        self.root.destroy()
+        AddDetailsScreen(tk.Tk(), self.library, book).display()
+
+
+class AddDetailsScreen:
+    def __init__(self, root, library, book):
+        self.root = root
+        self.library = library
+        self.selected_book = book
+
+    def display(self):
+        self.root.title("Waiting List Entry")
+        self.root.geometry("400x400")
+
+        # תווית שאלה
+        question_label = tk.Label(self.root, text="Do you want to get in waiting list?", font=("Helvetica", 14))
+        question_label.pack(pady=20)
+
+        # כפתור Yes
+        yes_button = tk.Button(self.root, text="Yes", command=self.on_yes)
+        yes_button.pack(pady=10)
+
+        # כפתור No
+        no_button = tk.Button(self.root, text="No", command=self.on_no)
+        no_button.pack(pady=10)
+
+    def on_yes(self):
+        # הצגת טופס להזנת שם ומספר פלאפון
+        self.show_waiting_list_form()
+
+    def on_no(self):
+        # חזרה למסך החיפוש
+        self.root.destroy()
+        SearchScreen(tk.Tk(), self.library).display()
+
+    def show_waiting_list_form(self):
+        # ניקוי ווידג'טים קיימים
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        # תווית ושדה הזנה עבור שם
+        name_label = tk.Label(self.root, text="Enter Your Name:")
+        name_label.pack(pady=10)
+        name_entry = tk.Entry(self.root)
+        name_entry.pack(pady=5)
+
+        # תווית ושדה הזנה עבור מספר פלאפון
+        phone_label = tk.Label(self.root, text="Enter Your Phone Number (05xxxxxxxx):")
+        phone_label.pack(pady=10)
+        phone_entry = tk.Entry(self.root)
+        phone_entry.pack(pady=5)
+
+        # כפתור שליחה
+        submit_button = tk.Button(self.root, text="Add to Waiting List",
+                                  command=lambda: self.add_to_waiting_list(name_entry.get(), phone_entry.get()))
+        submit_button.pack(pady=20)
+
+        # כפתור חזרה
+        back_button = tk.Button(self.root, text="Back", command=self.go_back)
+        back_button.pack(pady=10)
+
+    def add_to_waiting_list(self, name, phone):
+        # אימות מספר פלאפון
+        if not self.is_valid_phone(phone):
+            messagebox.showerror("Error", "Invalid phone number. Must be 10 digits starting with 05.")
+            return
+
+        # שימוש ב-Rentals כדי להוסיף את המשתמש לרשימת ההמתנה
+        success = Rentals.get_instance().add_to_waiting_list(self.selected_book, name, phone)
+
+        if success:
+            messagebox.showinfo("Success", f"Successfully added {name} to the waiting list.")
+        else:
+            messagebox.showerror("Error", "The waiting list is full. Try again later.")
+
+        # חזרה למסך החיפוש
+        self.root.destroy()
+        SearchScreen(tk.Tk(), self.library).display()
+
+    def is_valid_phone(self, phone):
+        # בדיקת תקינות מספר פלאפון
+        return len(phone) == 10 and phone.startswith("05") and phone.isdigit()
+
+    def go_back(self):
+        # חזרה למסך הקודם (מסך החיפוש)
+        self.root.destroy()
+        SearchScreen(tk.Tk(), self.library).display()
 
 class AddBookScreen(WindowInterface):
     def __init__(self, root, library):
@@ -287,7 +382,6 @@ class AddBookScreen(WindowInterface):
         self.back_button = tk.Button(self.root, text="Back", command=self.go_back)
         self.back_button.grid(row=6, column=0, columnspan=2, pady=20)
 
-
     def add_book(self):
         title = self.title_entry.get()
         author = self.author_entry.get()
@@ -325,6 +419,7 @@ class AddBookScreen(WindowInterface):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
 
+
 class RemoveBookScreen(WindowInterface):
     from src.main_lib.Books import Books
     def __init__(self, root, library):
@@ -345,7 +440,6 @@ class RemoveBookScreen(WindowInterface):
         self.author_entry = tk.Entry(self.root)
         self.author_entry.grid(row=1, column=1, padx=10, pady=10)
 
-
         self.category_label = tk.Label(self.root, text="Category:")
         self.category_label.grid(row=2, column=0, padx=10, pady=10)
         self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in BooksCategory])
@@ -363,7 +457,7 @@ class RemoveBookScreen(WindowInterface):
         self.back_button.grid(row=5, column=0, columnspan=2, pady=20)
 
     def remove_book(self):
-        ans=False
+        ans = False
         title = self.title_entry.get()
         author = self.author_entry.get()
         category = self.category_combobox.get()
@@ -385,17 +479,18 @@ class RemoveBookScreen(WindowInterface):
             Logger.log_add_message("book removed fail")
             messagebox.showerror("Error", "Books database file not found!")
             return
-        matching_books = df[(df['title'] == title) &(df['author'] == author) &(df['genre'] == category) &
-            (df['year'] == year)]
+        matching_books = df[(df['title'] == title) & (df['author'] == author) & (df['genre'] == category) &
+                            (df['year'] == year)]
         if matching_books.empty:
             Logger.log_add_message("book removed fail")
             messagebox.showerror("Error", "Book not found!")
             return
         book_data = matching_books.iloc[0].to_dict()
-        book = Books(title=book_data['title'],is_loaned=book_data['is_loaned'],author=book_data['author'],total_books=book_data["copies"],
-                    genre=book_data['genre'],year=book_data['year'],popularity=book_data['popularity'])
+        book = Books(title=book_data['title'], is_loaned=book_data['is_loaned'], author=book_data['author'],
+                     total_books=book_data["copies"],
+                     genre=book_data['genre'], year=book_data['year'], popularity=book_data['popularity'])
         try:
-            ans=self.library.remove_book(book)
+            ans = self.library.remove_book(book)
         except Exception:
             Logger.log_add_message("book removed fail")
             messagebox.showerror("Error", "Book could not be deleted!")
@@ -420,12 +515,109 @@ class RemoveBookScreen(WindowInterface):
         MainScreen(tk.Tk(), self.library).display()
 
 
+class DisplayBooksScreen:
+    def __init__(self, root, library):
+        self.root = root
+        self.library = library
+        self.genre_label = None
+        self.genre_combobox = None
+        self.genre_search_button = None
 
+    def display(self):
+        self.root.title("Display Books")
+        self.root.geometry("800x600")
 
+        # Dropdown for selecting display option
+        self.option_label = tk.Label(self.root, text="Select Category:")
+        self.option_label.pack(pady=10)
 
+        self.options = ["All Books", "Available Books", "Not Available Books", "Popular Books", "Genre"]
+        self.option_combobox = ttk.Combobox(self.root, values=self.options, state="readonly")
+        self.option_combobox.pack(pady=10)
+        self.option_combobox.set(self.options[0])  # Default selection
+        self.option_combobox.bind("<<ComboboxSelected>>", self.toggle_genre_selection)
 
+        # Genre selection (hidden by default)
+        self.genre_label = tk.Label(self.root, text="Select Genre:")
+        self.genre_combobox = ttk.Combobox(self.root,
+                                           values=[category.value for category in BooksCategory])  # הגדרה נכונה
+        self.genre_search_button = tk.Button(self.root, text="Search by Genre", command=self.display_books)
 
+        # Button to fetch and display books
+        self.display_button = tk.Button(self.root, text="Display Books", command=self.display_books)
+        self.display_button.pack(pady=20)
 
+        # Treeview for displaying books in table format
+        self.tree = ttk.Treeview(self.root, selectmode="browse")
+        self.tree.pack(fill="both", expand=True, pady=10)
+        self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
+
+        # Scrollbar for the Treeview
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        # Back button
+        self.back_button = tk.Button(self.root, text="Back", command=self.go_back)
+        self.back_button.pack(pady=20)
+
+    def toggle_genre_selection(self, event):
+        """Show or hide genre selection widgets based on category."""
+        if self.option_combobox.get() == "Genre":
+            self.genre_label.pack(pady=5)
+            self.genre_combobox.pack(pady=5)
+            self.genre_search_button.pack(pady=10)
+        else:
+            self.genre_label.pack_forget()
+            self.genre_combobox.pack_forget()
+            self.genre_search_button.pack_forget()
+
+    def go_back(self):
+        self.root.destroy()
+        MainScreen(tk.Tk(), self.library).display()
+
+    def display_books(self):
+        """Display books based on the selected category."""
+        self.tree.delete(*self.tree.get_children())  # Clear the treeview before displaying new results
+
+        option = self.option_combobox.get()
+
+        try:
+            if option == "All Books":
+                books = self.library.display_all_books()
+            elif option == "Available Books":
+                books = self.library.display_available_books()
+            elif option == "Not Available Books":
+                books = self.library.display_not_available_books()
+            elif option == "Popular Books":
+                books = self.library.display_popular_books()
+            elif option == "Genre":
+                genre = self.genre_combobox.get()
+                if not genre:
+                    messagebox.showerror("Error", "Please select a genre.")
+                    return
+                books = self.library.search_book(genre, "genre")
+            else:
+                raise ValueError("Invalid option selected.")
+
+            if books:
+                # Define columns based on the book dictionary keys
+                self.tree["columns"] = list(books[0].keys())
+                self.tree["show"] = "headings"
+
+                # Create headings for each column
+                for col in books[0].keys():
+                    self.tree.heading(col, text=col)
+                    self.tree.column(col, width=150)
+
+                # Insert book details into the Treeview
+                for index, book in enumerate(books):
+                    self.tree.insert("", "end", iid=index, values=list(book.values()))
+            else:
+                messagebox.showinfo("No Results", "No books found for the selected category.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
 
 if __name__ == '__main__':
     library = Library()

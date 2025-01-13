@@ -134,7 +134,7 @@ class Library(Subject):
         return rentals.return_books(book)
 
     def display_all_books(self):
-        df=pd.DataFrame(self.__files[0])
+        df=pd.read_csv(self.__files[0])
         if df.empty:
             Logger.log_add_message("Displayed all books fail")
             raise FileNotFoundError("File not found")
@@ -142,7 +142,7 @@ class Library(Subject):
         return df.to_dict(orient='records')
 
     def display_not_available_books(self):
-        df=pd.DataFrame(self.__files[2])
+        df=pd.read_csv(self.__files[2])
         if df.empty:
             Logger.log_add_message("Displayed borrowed books fail")
             raise FileNotFoundError("File not found")
@@ -150,7 +150,7 @@ class Library(Subject):
         return df.to_dict(orient='records')
 
     def display_available_books(self):
-        df=pd.DataFrame(self.__files[1])
+        df=pd.read_csv(self.__files[1])
         if df.empty:
             Logger.log_add_message("Displayed available books fail")
             raise FileNotFoundError("File not found")
@@ -158,7 +158,7 @@ class Library(Subject):
         return df.to_dict(orient='records')
 
     def display_popular_books(self):
-        df=pd.DataFrame(self.__files[0])
+        df=pd.read_csv(self.__files[0])
         if df.empty:
             Logger.log_add_message("Displayed popular books fail")
             raise FileNotFoundError("File not found")
