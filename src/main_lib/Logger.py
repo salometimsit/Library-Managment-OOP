@@ -19,7 +19,7 @@ class Logger:
                 try:
                     result = func(self, *args, **kwargs)
                     if result == True:
-                        logging.info(f"{message} success")
+                        logging.info(f"{message} successfully")
                     else:
                         logging.info(f"{message} fail")
                     return result

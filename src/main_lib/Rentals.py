@@ -5,6 +5,7 @@ import pandas as pd
 
 from src.main_lib.Books import Books
 from src.main_lib.LibraryServiceLocator import LibraryServiceLocator
+from src.main_lib.Logger import Logger
 from src.main_lib.Search_Books import SearchBooks
 
 
@@ -71,8 +72,10 @@ class Rentals:
         return lambda df: (
                 (df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                 (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df['year'].astype(int) == int(book.get_year()))
+                (df['year'].astype(int) == int(book.get_year()))&
+                 (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
         )
+
 
     def find_in_csv(self, book, file):
         """Find a book in a CSV file"""
@@ -161,6 +164,7 @@ class Rentals:
                                 {'waiting_list': ';'.join(entries[1:])})
         return name.strip(), phone.strip()
 
+    @Logger.log_method_call("Book borrowed")
     def rent_books(self, book):
         """Rent a book to a client"""
         available_book = self.find_in_csv(book, self.__files[1])
@@ -176,6 +180,7 @@ class Rentals:
             self.__handle_last_available_copy(book)
         return True
 
+    @Logger.log_method_call("Book returned")
     def return_books(self, book):
         """Return a book and handle waiting list"""
         not_available_book = self.find_in_csv(book, self.__files[2])

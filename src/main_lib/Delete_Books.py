@@ -41,13 +41,15 @@ class DeleteBooks:
             book_in_books = df_books[
                 (df_books['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                 (df_books['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df_books['year'].astype(int) == int(book.get_year()))
+                (df_books['year'].astype(int) == int(book.get_year())) &
+                (df_books['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
                 ]
 
             book_in_available = df_available[
                 (df_available['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                 (df_available['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df_available['year'].astype(int) == int(book.get_year()))
+                (df_available['year'].astype(int) == int(book.get_year())) &
+                (df_available['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
                 ]
 
             if book_in_books.empty and book_in_available.empty:
@@ -69,14 +71,16 @@ class DeleteBooks:
             df = pd.read_csv(file)
             match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                        (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                       (df['year'].astype(int) == int(book.get_year()))]
+                       (df['year'].astype(int) == int(book.get_year()))&
+                        (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower())]
 
             if match.empty:
                 print(f"Book '{book.get_title()}' not found in {file}.")
 
             df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                      (df['year'].astype(int) == int(book.get_year())))]
+                      (df['year'].astype(int) == int(book.get_year()))&
+                    (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower()))]
 
             df.to_csv(file, index=False)
 

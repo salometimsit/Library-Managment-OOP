@@ -117,12 +117,12 @@ class Library(Subject):
         if role == "librarian":
             self.subscribe(new_user)
 
-    @Logger.log_method_call("Book Borrowed")
+
     def rent_book(self, book):
         rentals = self.get_rentals()
         return rentals.rent_books(book)
 
-    @Logger.log_method_call("Book Returned")
+
     def return_book(self, book):
         """
         Returns a book from a client.
@@ -172,7 +172,7 @@ class Library(Subject):
     def search_book(self, name, strategy):
         self.searcher.set_strategy(strategy)
         df = self.searcher.search_all(name)
-        if df == {}:
+        if df == []:
             Logger.log_add_message(f"Search book '{name}' by {strategy} name completed fail")
         else:
             Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
