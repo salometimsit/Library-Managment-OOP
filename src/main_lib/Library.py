@@ -45,12 +45,21 @@ class Library(Subject):
             LibraryServiceLocator.set_library(self)
             from src.main_lib.Rentals import Rentals
             Rentals.get_instance()
+            self.current_librarian=None
+
 
     @staticmethod
     def get_instance():
         if Library.__instance is None:
             Library.__instance = Library()
         return Library.__instance
+
+    def set_current_librarian(self, librarian):
+        self.current_librarian = librarian
+        self.sub=[]
+        if librarian and librarian.get_role() == "librarian":
+            self.subscribe(librarian)
+            self.sub.append(librarian)
 
     def get_rentals(self):
         return LibraryServiceLocator.get_rentals()
@@ -104,7 +113,9 @@ class Library(Subject):
             password (str): Password for the user.
         """
         from src.main_lib.Users import User
-        User(name, username, role, password)
+        new_user=User(name, username, role, password)
+        if role == "librarian":
+            self.subscribe(new_user)
 
     @Logger.log_method_call("Book Borrowed")
     def rent_book(self, book):
@@ -168,14 +179,12 @@ class Library(Subject):
         return df
 
     def notify(self, message):
-        """
-        Notifies all subscribers (librarians) with a message.
+        if hasattr(self, 'current_librarian') and self.current_librarian:
+            if self.current_librarian not in self.sub:
+                self.sub = []
+                self.subscribe(self.current_librarian)
+            self.current_librarian.update(self, message)
 
-        Args:
-            message (str): The notification message to be sent to all subscribers.
-        """
-        for subscriber in self.sub:
-            subscriber.update(self, message)
 
 
 if __name__ == '__main__':

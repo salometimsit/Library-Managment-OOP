@@ -3,9 +3,6 @@ class Subject:
         self.sub = []
 
     def subscribe(self, user):
-        """
-        Subscribes an observer to the subject.
-        """
         if user not in self.sub:
             self.sub.append(user)
 
@@ -14,5 +11,4 @@ class Subject:
             self.sub.remove(user)
 
     def notify(self, message):
-        for subscriber in self.sub:
-            subscriber.update(message)
+        pass

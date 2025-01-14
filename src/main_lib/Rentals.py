@@ -184,7 +184,7 @@ class Rentals:
 
         name, phone = self.check_waiting_list(book)
         if name and phone:
-            msg = f"Book '{book.get_title()}' has been returned and should be transferred to {name} (Phone: {phone})"
+            msg = f"The Book '{book.get_title()}' has been returned and should be transferred to {name} , Phone: {phone}"
             self.get_library().notify(msg)
             return name
 

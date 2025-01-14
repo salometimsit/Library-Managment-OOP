@@ -31,7 +31,6 @@ class User(Observer):
             is_encrypted (bool): Indicates if the provided password is already encrypted.
         """
         super().__init__()
-        self.library = Library.get_instance()
         self.__name = name
         self.__username = username
         self.__role = role
@@ -39,24 +38,20 @@ class User(Observer):
         if not is_encrypted:
             self.save_to_file()
 
-    def update(self, subject, message):
-        """
-        Implementation of the Observer interface.
-        Receives notifications about book returns when there's someone in the waiting list.
+    def get_library(self):
+        from src.main_lib.Library import Library
+        return Library.get_instance()
 
-        Args:
-            subject: The subject sending the notification.
-            message (str): The notification message.
-        """
+    def update(self, subject, message):
         if self.__role == "librarian":
             try:
                 from tkinter import Tk, messagebox
                 root = Tk()
-                root.withdraw()  # Hide the main window
+                root.withdraw()
                 messagebox.showinfo("Book Return Notification", message)
                 root.destroy()
             except Exception as e:
-                print(f"Notification for librarian {self.__username}: {message}")
+                print(f"Debug: Error in update: {e}")
 
     def get_name(self):
         """Returns the name of the user."""
@@ -154,12 +149,3 @@ class User(Observer):
                     user = User(row["name"], row["username"], row["role"], row["password"], is_encrypted=True)
                     users.append(user)
         return users
-
-    def notify_all(self, message):
-        """
-        Sends a notification message to all users in the library system.
-
-        Args:
-            message (str): The notification message to send.
-        """
-        self.library.notify(message)

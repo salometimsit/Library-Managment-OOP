@@ -55,6 +55,7 @@ class LoginScreen(WindowInterface):
 
         if user and user.check_password(password):
             Logger.log_add_message("logged in successfully")
+            self.library.set_current_librarian(user)
             messagebox.showinfo("Welcome", f"hello {user.get_name()}!")
             self.root.destroy()
             main_screen = MainScreen(tk.Tk(), self.library)
@@ -192,33 +193,34 @@ class SearchScreen(WindowInterface):
     def __init__(self, root, library):
         super().__init__(root, library)
         self.selected_row = None
+        self.tree=None
+        self.strategy_var=tk.StringVar(value="title")
 
     def display(self):
         self.root.title("Search Books")
-        self.root.geometry("800x600")
+        self.root.geometry("800x650")
 
         tk.Label(self.root, text="Select Search Strategy:").pack(pady=10)
-        strategy_var = tk.StringVar(value="title")
 
-        tk.Radiobutton(self.root, text="Title", variable=strategy_var, value="title").pack(anchor="w")
-        tk.Radiobutton(self.root, text="Author", variable=strategy_var, value="author").pack(anchor="w")
-        tk.Radiobutton(self.root, text="Year", variable=strategy_var, value="year").pack(anchor="w")
-        tk.Radiobutton(self.root, text="Genre", variable=strategy_var, value="genre").pack(anchor="w")
+        tk.Radiobutton(self.root, text="Title", variable=self.strategy_var, value="title").pack(anchor="w")
+        tk.Radiobutton(self.root, text="Author", variable=self.strategy_var, value="author").pack(anchor="w")
+        tk.Radiobutton(self.root, text="Year", variable=self.strategy_var, value="year").pack(anchor="w")
+        tk.Radiobutton(self.root, text="Genre", variable=self.strategy_var, value="genre").pack(anchor="w")
 
         tk.Label(self.root, text="Enter Search Term:").pack(pady=10)
         search_term_entry = tk.Entry(self.root)
         search_term_entry.pack(pady=5)
 
-        tree = ttk.Treeview(self.root, selectmode="browse")
-        tree.pack(fill="both", expand=True, pady=10)
-        tree.bind("<<TreeviewSelect>>", self.on_row_select)
+        self.tree = ttk.Treeview(self.root, selectmode="browse")  # שמירת ה-tree כתכונה של המחלקה
+        self.tree.pack(fill="both", expand=True, pady=10)
+        self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
-        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=tree.yview)
-        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
         tk.Button(self.root, text="Search",
-                  command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
+                  command=lambda: self.perform_search(self.strategy_var, search_term_entry, self.tree)).pack(pady=10)
         tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)
         tk.Button(self.root, text="Return Book", command=self.return_book).pack(pady=10)
         tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
@@ -295,20 +297,13 @@ class SearchScreen(WindowInterface):
 
             result = self.library.return_book(book)
 
-            # Check if a person from waiting list should get the book
             if isinstance(result, str):
-                messagebox.showinfo("Success",
-                                    f"Book '{book_data['title']}' has been returned. Please transfer it to {result}.")
+                pass
             elif result:
                 messagebox.showinfo("Success", f"Book '{book_data['title']}' has been returned successfully.")
             else:
                 messagebox.showerror("Error", f"Could not return book '{book_data['title']}'.")
 
-            # Refresh the display
-            strategy_var = tk.StringVar(value="title")
-            search_entry = tk.Entry(self.root)
-            search_entry.insert(0, book_data["title"])
-            self.perform_search(strategy_var, search_entry, self.tree)
         else:
             messagebox.showerror("Error", "No book selected!")
 
