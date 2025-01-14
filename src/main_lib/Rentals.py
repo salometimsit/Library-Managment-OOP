@@ -3,454 +3,276 @@ import os
 from typing import Tuple
 import pandas as pd
 
-from src.main_lib.BookIterator import BookIterator
 from src.main_lib.Books import Books
-from src.main_lib.Logger import Logger
+from src.main_lib.LibraryServiceLocator import LibraryServiceLocator
 from src.main_lib.Search_Books import SearchBooks
 
 
 class Rentals:
     """
-    Represents the rental management system for the library.
-    Implements the Singleton pattern.
-
-    Attributes:
-        __instance (Rentals): Singleton instance of the Rentals class.
-        __files (list): List of file paths for books, available_books, and not_available_books CSV files.
-        __books (list): List of books managed for rentals.
+    Manages the rental system for the library using the Singleton pattern.
+    Handles book rentals, returns, and waiting lists.
     """
-    global popularlist
     __instance = None
 
     def __init__(self):
-        """
-        Initializes the Rentals instance and loads book data from CSV files.
-        """
+        """Initialize the Rentals system"""
         if Rentals.__instance is None:
-            # Initialize file paths
-            filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
-                         'Excel_Tables/not_available_books.csv']
-            self.__files = []
-            for filename in filenames:
-                file_path = os.path.join(os.path.dirname(__file__), filename)
-                file_path = os.path.abspath(file_path)
-
-                if not os.path.exists(file_path):
-                    raise FileNotFoundError(f"File not found: {file_path}")
-
-                self.__files.append(file_path)
-
-            # Add waiting_list column to not_available_books.csv if it doesn't exist
-            not_available_df = pd.read_csv(self.__files[2])
-            if 'waiting_list' not in not_available_df.columns:
-                not_available_df['waiting_list'] = ''
-                not_available_df.to_csv(self.__files[2], index=False)
-
-            self.__books = []
-            with open(self.__files[0], mode='r') as b_csv:
-                reader = csv.reader(b_csv)
-                next(reader, None)  # Skip header
-                for row in reader:
-                    if len(row) >= 6:
-                        self.__books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
-                    else:
-                        print(f"Invalid row: {row}")
+            self.__initialize_files()
+            self.__initialize_books()
             self.__search = SearchBooks().set_strategy("title")
+            LibraryServiceLocator.set_rentals(self)
+
+    def __initialize_files(self):
+        """Initialize and validate file paths"""
+        self.__files = []
+        filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
+                     'Excel_Tables/not_available_books.csv']
+
+        for filename in filenames:
+            file_path = os.path.join(os.path.dirname(__file__), filename)
+            file_path = os.path.abspath(file_path)
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
+            self.__files.append(file_path)
+
+        self.__ensure_waiting_list_column()
+
+    def __ensure_waiting_list_column(self):
+        """Ensure waiting_list column exists in not_available_books.csv"""
+        df = pd.read_csv(self.__files[2])
+        if 'waiting_list' not in df.columns:
+            df['waiting_list'] = ''
+            df.to_csv(self.__files[2], index=False)
+
+    def __initialize_books(self):
+        """Load books from CSV into memory"""
+        self.__books = []
+        with open(self.__files[0], mode='r') as b_csv:
+            reader = csv.reader(b_csv)
+            next(reader)  # Skip header
+            for row in reader:
+                if len(row) >= 6:
+                    self.__books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
     @staticmethod
     def get_instance():
-        """
-        Returns the singleton instance of the Rentals class.
-
-        Returns:
-            Rentals: Singleton instance of the Rentals.
-        """
+        """Get singleton instance"""
         if Rentals.__instance is None:
             Rentals.__instance = Rentals()
         return Rentals.__instance
 
-    def change_loaned_book(self, book, status):
-        c = self.find_in_csv(book, self.__files[0])
-        if c is not None:
-            df = pd.read_csv(self.__files[0])
-            con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                   (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                   (df['year'].astype(int) == int(book.get_year())))
+    def get_library(self):
+        """Get library instance"""
+        return LibraryServiceLocator.get_library()
 
-            df.loc[con, 'is_loaned'] = status
-            df.to_csv(self.__files[0], index=False)
-            print("changed loaned status")
-        else:
-            print("no value found")
+    def __create_book_filter(self, book):
+        """Create a DataFrame filter for book matching"""
+        return lambda df: (
+                (df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
+                (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                (df['year'].astype(int) == int(book.get_year()))
+        )
 
-    def change_popularity_inbook(self, book, status):
-        c = self.find_in_csv(book, self.__files[0])
-        if c is not None:
-            df = pd.read_csv(self.__files[0])
-            con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                   (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                   (df['year'].astype(int) == int(book.get_year())))
+    def find_in_csv(self, book, file):
+        """Find a book in a CSV file"""
+        try:
+            df = pd.read_csv(file)
+            book_filter = self.__create_book_filter(book)
+            match = df[book_filter(df)]
+            return match.iloc[0].to_dict() if not match.empty else None
+        except Exception as e:
+            print(f"Error finding book in CSV: {e}")
+            return None
 
-            df.loc[con, 'popularity'] = status
-            df.to_csv(self.__files[0], index=False)
-            print("changed popularity status")
-        else:
-            print("no value found")
+    def update_book_status(self, book, file_path, updates):
+        """Update book status in CSV file"""
+        try:
+            df = pd.read_csv(file_path)
+            book_filter = self.__create_book_filter(book)
+
+            # Convert updates values to appropriate types
+            converted_updates = {}
+            for key, value in updates.items():
+                if key in ['copies', 'popularity']:
+                    converted_updates[key] = int(value)
+                else:
+                    converted_updates[key] = value
+
+            for key, value in converted_updates.items():
+                df.loc[book_filter(df), key] = value
+
+            df.to_csv(file_path, index=False)
+            return True
+        except Exception as e:
+            print(f"Error updating book status: {e}")
+            return False
 
     def add_to_waiting_list(self, book: Books, name: str, phone: str) -> bool:
-        """
-        Adds a person to the waiting list for a book if they're not already in the list
-        and if the list hasn't reached its maximum capacity of 10 people.
-
-        Args:
-            book (Books): The book to add to waiting list
-            name (str): Name of the person
-            phone (str): Phone number of the person
-
-        Returns:
-            bool: True if successfully added, False otherwise
-        """
+        """Add person to book's waiting list"""
         df = pd.read_csv(self.__files[2])
-        con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-               (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-               (df['year'].astype(int) == int(book.get_year())))
+        book_filter = self.__create_book_filter(book)
+        if not book_filter(df).any():
+            return False
 
-        if con.any():
-            current_list = df.loc[con, 'waiting_list'].iloc[0]
-            new_entry = f"{name}:{phone}"
+        current_list = df.loc[book_filter(df), 'waiting_list'].iloc[0]
+        new_entry = f"{name}:{phone}"
 
-            # Check if list is empty or contains invalid data
-            if pd.isna(current_list) or current_list == '' or current_list == '[]':
-                df.loc[con, 'waiting_list'] = new_entry
-                df.to_csv(self.__files[2], index=False)
-                print(f"Added {name} to waiting list for '{book.get_title()}'")
-                return True
+        if pd.isna(current_list) or current_list == '' or current_list == '[]':
+            return self.update_book_status(book, self.__files[2], {'waiting_list': new_entry})
 
-            # Convert current list to array of entries
-            waiting_list = current_list.split(';')
+        waiting_list = current_list.split(';')
 
-            # Check if person is already in list
-            for entry in waiting_list:
-                # Check if entry is in valid format "name:phone"
-                if ':' in entry:
-                    entry_name, entry_phone = entry.split(':')
-                    if entry_name.strip().lower() == name.strip().lower() and entry_phone.strip() == phone.strip():
-                        print(f"{name} is already in the waiting list for '{book.get_title()}'")
-                        return False
-                else:
-                    print(f"Invalid entry format in waiting list: '{entry}'")
+        # Check for existing entry
+        for entry in waiting_list:
+            if ':' in entry:
+                entry_name, entry_phone = entry.split(':')
+                if entry_name.strip().lower() == name.strip().lower() and entry_phone.strip() == phone.strip():
+                    return False
 
-            # Check if list has reached maximum capacity
-            if len(waiting_list) >= 10:
-                print(f"Waiting list for '{book.get_title()}' is full (maximum 10 people)")
-                return False
+        if len(waiting_list) >= 10:
+            return False
 
-            # Add new entry to list
-            df.loc[con, 'waiting_list'] = f"{current_list};{new_entry}"
-            df.to_csv(self.__files[2], index=False)
-            print(f"Added {name} to waiting list for '{book.get_title()}'")
-            return True
-
-        return False
+        return self.update_book_status(book, self.__files[2],
+                                       {'waiting_list': f"{current_list};{new_entry}"})
 
     def check_waiting_list(self, book: Books) -> Tuple[str, str]:
-        """
-        Checks if there are people in the waiting list and returns the first person.
-
-        Args:
-            book (Books): The book to check
-
-        Returns:
-            Tuple[str, str]: (name, phone) of first person in waiting list, or (None, None) if empty
-        """
+        """Get and remove first person from waiting list"""
         df = pd.read_csv(self.__files[2])
-        con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-               (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-               (df['year'].astype(int) == int(book.get_year())))
+        book_filter = self.__create_book_filter(book)
 
-        if con.any():
-            waiting_list = df.loc[con, 'waiting_list'].iloc[0]
+        if not book_filter(df).any():
+            return None, None
 
-            # Check if the waiting list is empty or contains invalid data
-            if pd.notna(waiting_list) and waiting_list != '' and waiting_list != '[]':
-                entries = waiting_list.split(';')
-                if len(entries) > 0:
-                    first_person = entries[0]
+        waiting_list = df.loc[book_filter(df), 'waiting_list'].iloc[0]
+        if pd.isna(waiting_list) or waiting_list == '' or waiting_list == '[]':
+            return None, None
 
-                    # Check if the first entry is in the correct format
-                    if ':' in first_person:
-                        name, phone = first_person.split(':')
-                        # Remove first person from list
-                        remaining_list = ';'.join(entries[1:])
-                        df.loc[con, 'waiting_list'] = remaining_list
-                        df.to_csv(self.__files[2], index=False)
+        entries = waiting_list.split(';')
+        if not entries:
+            return None, None
 
-                        return name.strip(), phone.strip()
-                    else:
-                        print(f"Invalid format for entry '{first_person}'. Skipping.")
-                        return None, None
-            else:
-                print("Waiting list is empty or contains invalid data.")
-                return None, None
+        first_person = entries[0]
+        if ':' not in first_person:
+            return None, None
 
-        return None, None
+        name, phone = first_person.split(':')
+        self.update_book_status(book, self.__files[2],
+                                {'waiting_list': ';'.join(entries[1:])})
+        return name.strip(), phone.strip()
 
     def rent_books(self, book):
-        """
-        Rents a book to a client by decrementing the available copies.
-
-        Args:
-            book (Books): Book to be rented.
-        """
-        b = self.find_in_csv(book, self.__files[1])
-        if b is not None:
-            curr = int(b['copies'])
-            if curr > 1:
-                df = pd.read_csv(self.__files[1])
-                con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                       (df['year'].astype(int) == int(book.get_year())))
-                df.loc[con, 'copies'] = curr - 1
-                df.to_csv(self.__files[1], index=False)
-                print(f"Book '{book.get_title()}' rented successfully, remaining copies: {curr - 1}")
-                c = self.find_in_csv(book, self.__files[2])
-                if c is not None:
-                    curr = int(c['copies'])
-                    df = pd.read_csv(self.__files[2])
-                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                           (df['year'].astype(int) == int(book.get_year())))
-                    df.loc[con, 'copies'] = curr + 1
-                    df.to_csv(self.__files[2], index=False)
-                    return True
-                else:
-                    self.add_to_not_available_csv(book, 1)
-                    return True
-            elif curr == 1:
-                c = self.find_in_csv(book, self.__files[2])
-                if c is not None:
-                    curr = int(c['copies'])
-                    df = pd.read_csv(self.__files[2])
-                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                           (df['year'].astype(int) == int(book.get_year())))
-                    df.loc[con, 'copies'] = curr + 1
-                    df.loc[con, 'is_loaned'] = "No"
-                    df.to_csv(self.__files[2], index=False)
-                    self.change_loaned_book(book, "No")
-                else:
-                    self.add_to_not_available_csv(book, 1)
-                self.remove_from_csv(book, self.__files[1])
-        else:
-            print(f"You cannot rent the book '{book.get_title()}', no available copies.")
+        """Rent a book to a client"""
+        available_book = self.find_in_csv(book, self.__files[1])
+        if not available_book:
             self.add_popularity(book)
             return False
+
+        curr_copies = int(available_book['copies'])
+        if curr_copies > 1:
+            self.update_book_status(book, self.__files[1], {'copies': curr_copies - 1})
+            self.__handle_not_available_copy(book)
+        else:
+            self.__handle_last_available_copy(book)
+        return True
+
+    def return_books(self, book):
+        """Return a book and handle waiting list"""
+        not_available_book = self.find_in_csv(book, self.__files[2])
+        if not not_available_book:
+            return False
+
+        name, phone = self.check_waiting_list(book)
+        if name and phone:
+            msg = f"Book '{book.get_title()}' has been returned and should be transferred to {name} (Phone: {phone})"
+            self.get_library().notify(msg)
+            return name
+
+        curr_copies = int(not_available_book['copies'])
+        if curr_copies > 1:
+            self.__handle_multiple_copy_return(book, curr_copies)
+        else:
+            self.__handle_single_copy_return(book)
         return True
 
     def add_popularity(self, book):
-        """
-        Increases the popularity of a book by 1 in all three CSV files.
+        """Increase book popularity across all files"""
+        for file_path in self.__files:
+            book_entry = self.find_in_csv(book, file_path)
+            if book_entry:
+                current_popularity = int(book_entry['popularity'])
+                self.update_book_status(book, file_path, {'popularity': current_popularity + 1})
 
-        Args:
-            book (Books): The book to update popularity for.
-        """
-        # Update popularity in main books file
-        book_entry = self.find_in_csv(book, self.__files[0])
-        if book_entry is not None:
-            df = pd.read_csv(self.__files[0])
-            con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                   (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                   (df['year'].astype(int) == int(book.get_year())))
-            current_popularity = int(book_entry['popularity'])
-            df.loc[con, 'popularity'] = current_popularity + 1
-            df.to_csv(self.__files[0], index=False)
-
-        # Update popularity in available books file
-        available_entry = self.find_in_csv(book, self.__files[1])
-        if available_entry is not None:
-            df = pd.read_csv(self.__files[1])
-            con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                   (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                   (df['year'].astype(int) == int(book.get_year())))
-            current_popularity = int(available_entry['popularity'])
-            df.loc[con, 'popularity'] = current_popularity + 1
-            df.to_csv(self.__files[1], index=False)
-
-        # Update popularity in not available books file
-        not_available_entry = self.find_in_csv(book, self.__files[2])
-        if not_available_entry is not None:
-            df = pd.read_csv(self.__files[2])
-            con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                   (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                   (df['year'].astype(int) == int(book.get_year())))
-            current_popularity = int(not_available_entry['popularity'])
-            df.loc[con, 'popularity'] = current_popularity + 1
-            df.to_csv(self.__files[2], index=False)
-
-        print("Updated popularity in all files successfully")
-
-    def return_books(self, book):
-        """
-        Returns a rented book by incrementing the available copies.
-
-        Args:
-            book (Books): Book to be returned.
-        """
-        b = self.find_in_csv(book, self.__files[2])
-        if b is not None:
-            # Check waiting list first
-            name, phone = self.check_waiting_list(book)
-            if name and phone:
-                print(f"Book '{book.get_title()}' has been assigned to {name} ({phone}) from the waiting list")
-                return name  # Return the name of the person who gets the book
-
-            curr = int(b['copies'])
-            if curr > 1:
-                df = pd.read_csv(self.__files[2])
-                con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                       (df['year'].astype(int) == int(book.get_year())))
-                df.loc[con, 'copies'] = curr - 1
-                df.to_csv(self.__files[2], index=False)
-                print(f"Book '{book.get_title()}' returned successfully, remaining copies: {curr + 1}")
-                c = self.find_in_csv(book, self.__files[1])
-                if c is not None:
-                    curr = int(c['copies'])
-                    df = pd.read_csv(self.__files[1])
-                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                           (df['year'].astype(int) == int(book.get_year())))
-                    df.loc[con, 'copies'] = curr + 1
-                    df.to_csv(self.__files[1], index=False)
-                else:
-                    self.add_to_available_csv(book, 1)
-            elif curr == 1:
-                c = self.find_in_csv(book, self.__files[2])
-                if c is not None:
-                    curr = int(c['copies'])
-                    df = pd.read_csv(self.__files[2])
-                    con = ((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                           (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                           (df['year'].astype(int) == int(book.get_year())))
-                    df.loc[con, 'copies'] = curr + 1
-                    df.loc[con, 'is_loaned'] = "No"
-                    df.to_csv(self.__files[2], index=False)
-                    self.change_in_book(book, "No")
-                self.add_to_available_csv(book, book.get_total_books())
-                self.remove_from_csv(book, self.__files[2])
+    def __handle_not_available_copy(self, book):
+        """Handle adding a copy to not available books"""
+        not_available = self.find_in_csv(book, self.__files[2])
+        if not_available:
+            curr = int(not_available['copies'])
+            self.update_book_status(book, self.__files[2], {'copies': curr + 1})
         else:
-            print(f"You cannot return the book '{book.get_title()}', no loaned copies.")
-            return False
-        return True
+            self.__add_to_not_available_csv(book, 1)
 
-    def add_to_available_csv(self, book, total_available_copies):
-        """
-        Adds a book to the available books CSV file.
+    def __handle_last_available_copy(self, book):
+        """Handle renting the last available copy"""
+        not_available = self.find_in_csv(book, self.__files[2])
+        if not_available:
+            curr = int(not_available['copies'])
+            self.update_book_status(book, self.__files[2],
+                                    {'copies': curr + 1, 'is_loaned': 'No'})
+            self.update_book_status(book, self.__files[0], {'is_loaned': 'No'})
+        else:
+            self.__add_to_not_available_csv(book, 1)
+        self.__remove_from_csv(book, self.__files[1])
 
-        Args:
-            book (Books): Book to be added.
-            total_available_copies (int): Number of copies to add.
-        """
-        try:
-            if self.find_in_csv(book, self.__files[1]) is None:
-                with open(self.__files[1], mode='a', newline='') as av_csv:
-                    writer = csv.writer(av_csv)
-                    if not os.path.isfile(self.__files[1]) or os.path.getsize(self.__files[1]) == 0:
-                        writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year', 'popularity'])
-                    writer.writerow(
-                        [book.get_title(), book.get_author(), "No", total_available_copies,
-                         book.get_genre(), book.get_year(), book.get_popularity()])
-                print(f"Book '{book.get_title()}' added to available_books successfully.")
-            else:
-                print(f"Book '{book.get_title()}' already exists in available_books.")
-        except Exception as e:
-            print(f"An error occurred while adding the book: {e}")
+    def __handle_multiple_copy_return(self, book, curr_copies):
+        """Handle returning one of multiple copies"""
+        self.update_book_status(book, self.__files[2], {'copies': curr_copies - 1})
+        available = self.find_in_csv(book, self.__files[1])
+        if available:
+            curr = int(available['copies'])
+            self.update_book_status(book, self.__files[1], {'copies': curr + 1})
+        else:
+            self.__add_to_available_csv(book, 1)
 
-    def add_to_not_available_csv(self, book, total_available_copies):
-        """
-        Adds a book to the not available books CSV file.
+    def __handle_single_copy_return(self, book):
+        """Handle returning the last copy"""
+        self.update_book_status(book, self.__files[2],
+                                {'copies': 1, 'is_loaned': 'No'})
+        self.update_book_status(book, self.__files[0], {'is_loaned': 'No'})
+        self.__add_to_available_csv(book, book.get_total_books())
+        self.__remove_from_csv(book, self.__files[2])
 
-        Args:
-            book (Books): Book to be added.
-            total_available_copies (int): Number of copies to add.
-        """
-        try:
-            if self.find_in_csv(book, self.__files[2]) is None:
-                with open(self.__files[2], mode='a', newline='') as av_csv:
-                    writer = csv.writer(av_csv)
-                    if not os.path.isfile(self.__files[2]) or os.path.getsize(self.__files[2]) == 0:
-                        writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year', 'popularity',
-                                         'waiting_list'])
-                    writer.writerow(
-                        [book.get_title(), book.get_author(), book.get_is_loaned(), total_available_copies,
-                         book.get_genre(), book.get_year(), book.get_popularity(), ''])
-                print(f"Book '{book.get_title()}' added to not_available_books successfully.")
-            else:
-                print(f"Book '{book.get_title()}' already exists in not_available_books.")
-        except Exception as e:
-            print(f"An error occurred while adding the book: {e}")
+    def __add_to_available_csv(self, book, copies):
+        """Add book to available books CSV"""
+        if self.find_in_csv(book, self.__files[1]) is None:
+            with open(self.__files[1], mode='a', newline='') as f:
+                writer = csv.writer(f)
+                if os.path.getsize(self.__files[1]) == 0:
+                    writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year', 'popularity'])
+                writer.writerow([
+                    book.get_title(), book.get_author(), "No", copies,
+                    book.get_genre(), book.get_year(), book.get_popularity()
+                ])
 
-    def find_in_csv(self, book, file):
-        """
-        Finds a book in the specified CSV file.
+    def __add_to_not_available_csv(self, book, copies):
+        """Add book to not available books CSV"""
+        if self.find_in_csv(book, self.__files[2]) is None:
+            with open(self.__files[2], mode='a', newline='') as f:
+                writer = csv.writer(f)
+                if os.path.getsize(self.__files[2]) == 0:
+                    writer.writerow(['title', 'author', 'is_loaned', 'copies', 'genre', 'year', 'popularity',
+                                     'waiting_list'])
+                writer.writerow([
+                    book.get_title(), book.get_author(), book.get_is_loaned(), copies,
+                    book.get_genre(), book.get_year(), book.get_popularity(), ''
+                ])
 
-        Args:
-            book (Books): Book to find.
-            file (str): Path to the CSV file.
-
-        Returns:
-            dict: A dictionary of the book details if found, else None.
-        """
+    def __remove_from_csv(self, book, file):
+        """Remove book from CSV file"""
         try:
             df = pd.read_csv(file)
-            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                       (df['year'].astype(int) == int(book.get_year()))]
-            if not match.empty:
-                return match.iloc[0].to_dict()
-            else:
-                return None
-        except FileNotFoundError:
-            return None
-        except Exception as e:
-            print(f"An error occurred in find_in_csv: {e}")
-            return None
-
-    def remove_from_csv(self, book, file):
-        """
-        Removes a book from the specified CSV file.
-
-        Args:
-            book (Books): Book to remove.
-            file (str): Path to the CSV file.
-        """
-        try:
-            df = pd.read_csv(file)
-            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                       (df['year'].astype(int) == int(book.get_year()))]
-            if match.empty:
-                print(f"Book '{book.get_title()}' not found in {file}.")
-            df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                      (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                      (df['year'].astype(int) == int(book.get_year())))]
+            book_filter = self.__create_book_filter(book)
+            df = df[~book_filter(df)]
             df.to_csv(file, index=False)
-            print(f"Book '{book.get_title()}' removed from {file}.")
-        except FileNotFoundError:
-            print(f"File not found: {file}")
         except Exception as e:
-            print(f"An error occurred while updating the files: {e}")
-
-
-if __name__ == '__main__':
-    rentals = Rentals.get_instance()
-    book1 = Books("The Great Gatsby", "F. Scott Fitzgerald", "No", 2, "Fiction", 1925, 0)
-
-    # Example of trying to rent a book and adding to waiting list if unavailable
-    if not rentals.rent_books(book1):
-        rentals.add_to_waiting_list(book1, "John Doe", "123-456-7890")
-
-    # Example of returning a book and checking waiting list
-    result = rentals.return_books(book1)
-    if isinstance(result, str):
-        print(f"Book automatically assigned to {result} from waiting list")
+            print(f"Error removing book from CSV: {e}")

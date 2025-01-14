@@ -44,6 +44,10 @@ class LoginScreen(WindowInterface):
         register_button.pack(pady=10)
 
     def login(self, username_entry, password_entry):
+        """
+        Handles the user login process.
+        If successful, initializes the main screen with the logged-in user.
+        """
         username = username_entry.get().strip()
         password = password_entry.get().strip()
         users = User.get_all_users()
@@ -53,7 +57,9 @@ class LoginScreen(WindowInterface):
             Logger.log_add_message("logged in successfully")
             messagebox.showinfo("Welcome", f"hello {user.get_name()}!")
             self.root.destroy()
-            MainScreen(tk.Tk(), self.library).display()
+            main_screen = MainScreen(tk.Tk(), self.library)
+            main_screen.set_current_user(user)
+            main_screen.display()
         else:
             Logger.log_add_message("logged in fail")
             messagebox.showerror("Error", "Invalid username or password")
@@ -64,8 +70,25 @@ class LoginScreen(WindowInterface):
 
 
 class MainScreen(WindowInterface):
+    """
+    Main screen of the library management system.
+    Handles the display of main menu and navigation.
+    """
+
     def __init__(self, root, library):
         super().__init__(root, library)
+        self.current_user = None
+
+    def set_current_user(self, user):
+        """
+        Sets the current user and registers them as an observer if they are a librarian.
+
+        Args:
+            user (User): The currently logged-in user.
+        """
+        self.current_user = user
+        if user.get_role() == "librarian":
+            self.library.subscribe(user)
 
     def display(self):
         self.root.title("Main Screen")
@@ -191,6 +214,7 @@ class SearchScreen(WindowInterface):
         tk.Button(self.root, text="Search",
                   command=lambda: self.perform_search(strategy_var, search_term_entry, tree)).pack(pady=10)
         tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)
+        tk.Button(self.root, text="Return Book", command=self.return_book).pack(pady=10)
         tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
 
     def perform_search(self, strategy_var, search_term_entry, tree):
@@ -245,6 +269,40 @@ class SearchScreen(WindowInterface):
                 messagebox.showerror("Error", f"Could not rent book '{book_data['title']}'.")
                 self.open_add_details_screen(book)
 
+        else:
+            messagebox.showerror("Error", "No book selected!")
+
+    def return_book(self):
+        if self.selected_row:
+            keys = ["title", "author", "is_loaned", "total_books", "genre", "year", "popularity"]
+            book_data = {key: value for key, value in zip(keys, self.selected_row)}
+
+            book = Books(
+                title=book_data["title"],
+                author=book_data["author"],
+                is_loaned=book_data["is_loaned"],
+                total_books=int(book_data["total_books"]),
+                genre=book_data["genre"],
+                year=int(book_data["year"]),
+                popularity=int(book_data["popularity"])
+            )
+
+            result = self.library.return_book(book)
+
+            # Check if a person from waiting list should get the book
+            if isinstance(result, str):
+                messagebox.showinfo("Success",
+                                    f"Book '{book_data['title']}' has been returned. Please transfer it to {result}.")
+            elif result:
+                messagebox.showinfo("Success", f"Book '{book_data['title']}' has been returned successfully.")
+            else:
+                messagebox.showerror("Error", f"Could not return book '{book_data['title']}'.")
+
+            # Refresh the display
+            strategy_var = tk.StringVar(value="title")
+            search_entry = tk.Entry(self.root)
+            search_entry.insert(0, book_data["title"])
+            self.perform_search(strategy_var, search_entry, self.tree)
         else:
             messagebox.showerror("Error", "No book selected!")
 

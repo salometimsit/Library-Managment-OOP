@@ -3,9 +3,11 @@ import os
 
 import pandas as pd
 
+from src.main_lib.Books import Books
+from src.main_lib.LibraryServiceLocator import LibraryServiceLocator
+from src.main_lib.Logger import Logger
 from src.main_lib.BooksFactory import BooksFactory
 from src.main_lib.Delete_Books import DeleteBooks
-from src.main_lib.Rentals import *
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
 
@@ -24,9 +26,8 @@ class Library(Subject):
     __instance = None
 
     def __init__(self):
-        from src.main_lib.Books import Books
-        super().__init__()
         if Library.__instance is None:
+            super().__init__()
             self.searcher = SearchBooks()
             # Initialize file paths
             filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
@@ -41,28 +42,18 @@ class Library(Subject):
 
                 self.__files.append(file_path)
             self.facbooks = BooksFactory(self.__files)
-
-            self.__books = []
-            with open(self.__files[0], mode='r') as b_csv:
-                reader = csv.reader(b_csv)
-                next(reader, None)  # Skip header
-                for row in reader:
-                    if len(row) >= 6:
-                        self.__books.append(Books(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
-                    else:
-                        print(f"Invalid row: {row}")
+            LibraryServiceLocator.set_library(self)
+            from src.main_lib.Rentals import Rentals
+            Rentals.get_instance()
 
     @staticmethod
     def get_instance():
-        """
-        Returns the singleton instance of the Library class.
-
-        Returns:
-            Library: Singleton instance of the Library.
-        """
         if Library.__instance is None:
             Library.__instance = Library()
         return Library.__instance
+
+    def get_rentals(self):
+        return LibraryServiceLocator.get_rentals()
 
     def __str__(self):
         """
@@ -117,13 +108,7 @@ class Library(Subject):
 
     @Logger.log_method_call("Book Borrowed")
     def rent_book(self, book):
-        """
-        Rents a book to a client.
-
-        Args:
-            book (Books): Book to be rented.
-        """
-        rentals = Rentals.get_instance()
+        rentals = self.get_rentals()
         return rentals.rent_books(book)
 
     @Logger.log_method_call("Book Returned")
@@ -134,7 +119,7 @@ class Library(Subject):
         Args:
             book (Books): Book to be returned.
         """
-        rentals = Rentals.get_instance()
+        rentals = self.get_rentals()
         return rentals.return_books(book)
 
     def display_all_books(self):
@@ -181,6 +166,16 @@ class Library(Subject):
         else:
             Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
         return df
+
+    def notify(self, message):
+        """
+        Notifies all subscribers (librarians) with a message.
+
+        Args:
+            message (str): The notification message to be sent to all subscribers.
+        """
+        for subscriber in self.sub:
+            subscriber.update(self, message)
 
 
 if __name__ == '__main__':

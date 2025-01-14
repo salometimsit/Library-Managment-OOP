@@ -2,11 +2,14 @@ import base64
 import csv
 import hashlib
 import os
+from tkinter import messagebox
 from src.main_lib.Library import Library
+from src.main_lib.Observer import Observer
 
-class User:
+class User(Observer):
     """
     Represents a user in the library system, primarily librarians.
+    Implements the Observer interface to receive notifications about book returns.
 
     Attributes:
         library (Library): The library instance associated with the user.
@@ -27,6 +30,7 @@ class User:
             password (str): Plaintext or encrypted password.
             is_encrypted (bool): Indicates if the provided password is already encrypted.
         """
+        super().__init__()
         self.library = Library.get_instance()
         self.__name = name
         self.__username = username
@@ -34,6 +38,25 @@ class User:
         self.__password = password if is_encrypted else self.do_encriptation(str(password))
         if not is_encrypted:
             self.save_to_file()
+
+    def update(self, subject, message):
+        """
+        Implementation of the Observer interface.
+        Receives notifications about book returns when there's someone in the waiting list.
+
+        Args:
+            subject: The subject sending the notification.
+            message (str): The notification message.
+        """
+        if self.__role == "librarian":
+            try:
+                from tkinter import Tk, messagebox
+                root = Tk()
+                root.withdraw()  # Hide the main window
+                messagebox.showinfo("Book Return Notification", message)
+                root.destroy()
+            except Exception as e:
+                print(f"Notification for librarian {self.__username}: {message}")
 
     def get_name(self):
         """Returns the name of the user."""
