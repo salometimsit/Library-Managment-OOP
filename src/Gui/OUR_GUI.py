@@ -10,6 +10,7 @@ class WindowInterface:
     def __init__(self, root, library):
         self.root = root
         self.library = library
+        self.center_window()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def display(self):
@@ -20,6 +21,21 @@ class WindowInterface:
             self.root.destroy()
         else:
             messagebox.showwarning("Warning", "Please use the proper logout button to exit.")
+
+    def center_window(self):
+        """Centers the window on the screen."""
+        self.root.update_idletasks()
+
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height()
+
+        x = int((screen_width / 2.5) - (window_width // 2))
+        y = int((screen_height / 4.5) - (window_height // 2))
+
+        self.root.geometry(f'+{x}+{y}')
 
 
 class LoginScreen(WindowInterface):
@@ -320,7 +336,7 @@ class AddDetailsScreen(WindowInterface):
 
     def display(self):
         self.root.title("Waiting List Entry")
-        self.root.geometry("400x400")
+        self.root.geometry("400x200")
 
         question_label = tk.Label(self.root, text="Do you want to get in waiting list?", font=("Helvetica", 14))
         question_label.pack(pady=20)
@@ -391,7 +407,7 @@ class AddBookScreen(WindowInterface):
     def display(self):
 
         self.root.title("Add Book to Library")
-        self.root.geometry("350x350")
+        self.root.geometry("350x400")
 
         self.title_label = tk.Label(self.root, text="Book Title:")
         self.title_label.grid(row=0, column=0, padx=10, pady=10)
