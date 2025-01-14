@@ -60,16 +60,6 @@ class SearchBooks:
             raise Exception('Invalid strategy')
 
     def search_all(self, name):
-        """
-        Executes the search using the current strategy.
-
-        Args:
-            name (str): The search term.
-
-        Returns:
-            pd.DataFrame: The search results as a DataFrame.
-        """
-
         df = pd.read_csv(self.__files[0])
         return self.__strategy.search(df, name)
 

@@ -2,8 +2,6 @@ import base64
 import csv
 import hashlib
 import os
-from tkinter import messagebox
-from src.main_lib.Library import Library
 from src.main_lib.Observer import Observer
 
 class User(Observer):

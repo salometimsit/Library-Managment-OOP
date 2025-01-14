@@ -72,10 +72,9 @@ class Rentals:
         return lambda df: (
                 (df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                 (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df['year'].astype(int) == int(book.get_year()))&
-                 (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
+                (df['year'].astype(int) == int(book.get_year())) &
+                (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
         )
-
 
     def find_in_csv(self, book, file):
         """Find a book in a CSV file"""
@@ -181,23 +180,42 @@ class Rentals:
         return True
 
     @Logger.log_method_call("Book returned")
-    def return_books(self, book):
-        """Return a book and handle waiting list"""
-        not_available_book = self.find_in_csv(book, self.__files[2])
-        if not not_available_book:
-            return False
-
-        name, phone = self.check_waiting_list(book)
-        if name and phone:
-            msg = f"The Book '{book.get_title()}' has been returned and should be transferred to {name} , Phone: {phone}"
-            self.get_library().notify(msg)
-            return name
-
+    def __process_book_return(self, book, not_available_book):
         curr_copies = int(not_available_book['copies'])
         if curr_copies > 1:
             self.__handle_multiple_copy_return(book, curr_copies)
         else:
             self.__handle_single_copy_return(book)
+        return True
+
+    def return_books(self, book):
+
+        not_available_book = self.find_in_csv(book, self.__files[2])
+        if not not_available_book:
+            return False
+
+        waiting_list = not_available_book.get('waiting_list', '')
+        if pd.isna(waiting_list):
+            waiting_list = ''
+        else:
+            waiting_list=str(waiting_list)
+        updated_waiting_list = ''
+        if waiting_list and waiting_list.strip():
+            entries = waiting_list.split(';')
+            if len(entries) > 1:
+                updated_waiting_list = ';'.join(entries[1:])
+
+        return_success = self.__process_book_return(book, not_available_book)
+
+        if not return_success:
+            return False
+
+        name, phone = self.check_waiting_list(book)
+        if name and phone:
+            msg = f"The Book '{book.get_title()}' has been returned and should be transferred to {name}, Phone: {phone}"
+            self.get_library().notify(msg)
+            self.rent_books(book)
+            self.update_book_status(book, self.__files[2], {'waiting_list': updated_waiting_list})
         return True
 
     def add_popularity(self, book):

@@ -2,22 +2,24 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
-
-from src.main_lib.Books import Books
-from src.main_lib.BooksCategory import BooksCategory
-from src.main_lib.Logger import Logger
-from src.main_lib.Rentals import Rentals
-from src.main_lib.Users import User
 from src.main_lib.Library import Library
+from src.main_lib.Logger import Logger
 
 
 class WindowInterface:
     def __init__(self, root, library):
         self.root = root
         self.library = library
+        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def display(self):
         raise NotImplementedError("This method should be implemented by subclasses.")
+
+    def on_closing(self):
+        if isinstance(self, LoginScreen):
+            self.root.destroy()
+        else:
+            messagebox.showwarning("Warning", "Please use the proper logout button to exit.")
 
 
 class LoginScreen(WindowInterface):
@@ -49,24 +51,21 @@ class LoginScreen(WindowInterface):
         """
         username = username_entry.get().strip()
         password = password_entry.get().strip()
-        users = User.get_all_users()
-        user = next((u for u in users if u.get_username() == username), None)
-
-        if user and user.check_password(password):
-            Logger.log_add_message("logged in successfully")
-            self.library.set_current_librarian(user)
-            messagebox.showinfo("Welcome", f"hello {user.get_name()}!")
+        result=self.library.user_login(username, password)
+        if result:
+            messagebox.showinfo("Welcome", f"hello {username}!")
             self.root.destroy()
             main_screen = MainScreen(tk.Tk(), self.library)
-            main_screen.set_current_user(user)
             main_screen.display()
         else:
-            Logger.log_add_message("logged in fail")
             messagebox.showerror("Error", "Invalid username or password")
 
     def register_new_user(self):
         self.root.destroy()
         RegisterScreen(tk.Tk(), self.library).display()
+
+    def on_closing(self):
+        self.root.destroy()
 
 
 class MainScreen(WindowInterface):
@@ -77,18 +76,6 @@ class MainScreen(WindowInterface):
 
     def __init__(self, root, library):
         super().__init__(root, library)
-        self.current_user = None
-
-    def set_current_user(self, user):
-        """
-        Sets the current user and registers them as an observer if they are a librarian.
-
-        Args:
-            user (User): The currently logged-in user.
-        """
-        self.current_user = user
-        if user.get_role() == "librarian":
-            self.library.subscribe(user)
 
     def display(self):
         self.root.title("Main Screen")
@@ -133,12 +120,19 @@ class MainScreen(WindowInterface):
 
     def logout(self):
         try:
-            self.root.destroy()
-            Logger.log_add_message("logged out successfully")
-            LoginScreen(tk.Tk(), self.library).display()
-        except Exception as e:
-            Logger.log_add_message(f"Logout failed: {str(e)}")
+            result = self.library.user_logout()
+            if result:
+                self.root.destroy()
+                LoginScreen(tk.Tk(), self.library).display()
+            else:
+                messagebox.showerror("Error", "Logout failed. Please try again.")
+        except Exception:
             messagebox.showerror("Error", "Logout failed. Please try again.")
+            Logger.log_add_message("Logout fail")
+
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please Logout before closing.")
+
 
 
 class RegisterScreen(WindowInterface):
@@ -168,18 +162,18 @@ class RegisterScreen(WindowInterface):
         back_button = tk.Button(self.root, text="Back", command=self.go_back)
         back_button.pack(pady=20)
 
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the login screen.")
+
     def handle_registration(self, name_entry, username_entry, password_entry):
         full_name = name_entry.get().strip()
         username = username_entry.get().strip()
         password = password_entry.get().strip()
 
-        users = User.get_all_users()
-        if any(u.get_username() == username for u in users):
-            Logger.log_add_message("registered fail")
+        result=self.library.user_register(full_name, username, password)
+        if not result:
             messagebox.showerror("Error", "Username already registered")
         else:
-            self.library.add_user(username, full_name, "librarian", password)
-            Logger.log_add_message("registered successfully")
             messagebox.showinfo("Success", "User registered successfully!")
             self.root.destroy()
             LoginScreen(tk.Tk(), self.library).display()
@@ -221,9 +215,12 @@ class SearchScreen(WindowInterface):
 
         tk.Button(self.root, text="Search",
                   command=lambda: self.perform_search(self.strategy_var, search_term_entry, self.tree)).pack(pady=10)
-        tk.Button(self.root, text="Rent Book", command=self.rent_book).pack(pady=10)
+        tk.Button(self.root, text="Lend Book", command=self.rent_book).pack(pady=10)
         tk.Button(self.root, text="Return Book", command=self.return_book).pack(pady=10)
         tk.Button(self.root, text="Back", command=self.go_back).pack(pady=10)
+
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the main screen.")
 
     def perform_search(self, strategy_var, search_term_entry, tree):
         strategy = strategy_var.get()
@@ -259,7 +256,7 @@ class SearchScreen(WindowInterface):
             keys = ["title", "author", "is_loaned", "total_books", "genre", "year", "popularity"]
             book_data = {key: value for key, value in zip(keys, self.selected_row)}
 
-            book = Books(
+            book = self.library.get_book(
                 title=book_data["title"],
                 author=book_data["author"],
                 is_loaned=book_data["is_loaned"],
@@ -285,7 +282,7 @@ class SearchScreen(WindowInterface):
             keys = ["title", "author", "is_loaned", "total_books", "genre", "year", "popularity"]
             book_data = {key: value for key, value in zip(keys, self.selected_row)}
 
-            book = Books(
+            book = self.library.get_book(
                 title=book_data["title"],
                 author=book_data["author"],
                 is_loaned=book_data["is_loaned"],
@@ -366,9 +363,7 @@ class AddDetailsScreen(WindowInterface):
         if not self.is_valid_phone(phone):
             messagebox.showerror("Error", "Invalid phone number. Must be 10 digits starting with 05.")
             return
-
-        success = Rentals.get_instance().add_to_waiting_list(self.selected_book, name, phone)
-
+        success = self.library.add_to_waiting_list(self.selected_book,name, phone)
         if success:
             messagebox.showinfo("Success", f"Successfully added {name} to the waiting list.")
         else:
@@ -383,6 +378,9 @@ class AddDetailsScreen(WindowInterface):
     def go_back(self):
         self.root.destroy()
         SearchScreen(tk.Tk(), self.library).display()
+
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the main screen.")
 
 
 class AddBookScreen(WindowInterface):
@@ -412,7 +410,7 @@ class AddBookScreen(WindowInterface):
 
         self.category_label = tk.Label(self.root, text="Category:")
         self.category_label.grid(row=3, column=0, padx=10, pady=10)
-        self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in BooksCategory])
+        self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in self.library.get_books_category()])
         self.category_combobox.grid(row=3, column=1, padx=10, pady=10)
 
         self.year_label = tk.Label(self.root, text="Year:")
@@ -463,6 +461,9 @@ class AddBookScreen(WindowInterface):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
 
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the main screen.")
+
 
 class RemoveBookScreen(WindowInterface):
     def __init__(self, root, library):
@@ -485,7 +486,7 @@ class RemoveBookScreen(WindowInterface):
 
         self.category_label = tk.Label(self.root, text="Category:")
         self.category_label.grid(row=2, column=0, padx=10, pady=10)
-        self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in BooksCategory])
+        self.category_combobox = ttk.Combobox(self.root, values=[category.value for category in self.library.get_books_category()])
         self.category_combobox.grid(row=2, column=1, padx=10, pady=10)
 
         self.year_label = tk.Label(self.root, text="Year:")
@@ -530,7 +531,7 @@ class RemoveBookScreen(WindowInterface):
 
             book_data = matching_books.iloc[0].to_dict()
 
-            book = Books(
+            book = self.library.get_book(
                 title=book_data['title'],
                 is_loaned=book_data['is_loaned'],
                 author=book_data['author'],
@@ -571,41 +572,46 @@ class RemoveBookScreen(WindowInterface):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
 
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the main screen.")
+
 
 class DisplayBooksScreen(WindowInterface):
     def __init__(self, root, library):
         super().__init__(root, library)
         self.genre_label = None
         self.genre_combobox = None
-        self.genre_search_button = None
+        self.tree = None
 
     def display(self):
         self.root.title("Display Books")
         self.root.geometry("800x600")
 
+        # Create top frame for controls
+        control_frame = tk.Frame(self.root)
+        control_frame.pack(fill="x", padx=10, pady=10)
+
         # Dropdown for selecting display option
-        self.option_label = tk.Label(self.root, text="Select Category:")
-        self.option_label.pack(pady=10)
+        self.option_label = tk.Label(control_frame, text="Select Category:")
+        self.option_label.pack(pady=5)
 
         self.options = ["All Books", "Available Books", "Not Available Books", "Popular Books", "Genre"]
-        self.option_combobox = ttk.Combobox(self.root, values=self.options, state="readonly")
-        self.option_combobox.pack(pady=10)
+        self.option_combobox = ttk.Combobox(control_frame, values=self.options, state="readonly")
+        self.option_combobox.pack(pady=5)
         self.option_combobox.set(self.options[0])  # Default selection
         self.option_combobox.bind("<<ComboboxSelected>>", self.toggle_genre_selection)
 
         # Genre selection (hidden by default)
-        self.genre_label = tk.Label(self.root, text="Select Genre:")
-        self.genre_combobox = ttk.Combobox(self.root,
-                                           values=[category.value for category in BooksCategory])  # הגדרה נכונה
-        self.genre_search_button = tk.Button(self.root, text="Search by Genre", command=self.display_books)
-
+        self.genre_label = tk.Label(control_frame, text="Select Genre:")
+        self.genre_combobox = ttk.Combobox(control_frame,
+                                          values=[category.value for category in self.library.get_books_category()])
         # Button to fetch and display books
-        self.display_button = tk.Button(self.root, text="Display Books", command=self.display_books)
-        self.display_button.pack(pady=20)
+        self.display_button = tk.Button(control_frame, text="Display Books", command=self.display_books)
+        self.display_button.pack(pady=10)
 
         # Treeview for displaying books in table format
         self.tree = ttk.Treeview(self.root, selectmode="browse")
-        self.tree.pack(fill="both", expand=True, pady=10)
+        self.tree.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Scrollbar for the Treeview
         scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.tree.yview)
@@ -614,18 +620,19 @@ class DisplayBooksScreen(WindowInterface):
 
         # Back button
         self.back_button = tk.Button(self.root, text="Back", command=self.go_back)
-        self.back_button.pack(pady=20)
+        self.back_button.pack(pady=10)
 
     def toggle_genre_selection(self, event):
+        self.display_button.pack_forget()
         """Show or hide genre selection widgets based on category."""
         if self.option_combobox.get() == "Genre":
             self.genre_label.pack(pady=5)
             self.genre_combobox.pack(pady=5)
-            self.genre_search_button.pack(pady=10)
+            self.display_button.pack(pady=10)
         else:
             self.genre_label.pack_forget()
             self.genre_combobox.pack_forget()
-            self.genre_search_button.pack_forget()
+            self.display_button.pack(pady=10)
 
     def go_back(self):
         self.root.destroy()
@@ -651,7 +658,7 @@ class DisplayBooksScreen(WindowInterface):
                 if not genre:
                     messagebox.showerror("Error", "Please select a genre.")
                     return
-                books = self.library.search_book(genre, "genre")
+                books = self.library.display_category(genre)
             else:
                 raise ValueError("Invalid option selected.")
 
@@ -673,6 +680,9 @@ class DisplayBooksScreen(WindowInterface):
 
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
+
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the main screen.")
 
 
 class PopularBooksScreen(WindowInterface):
@@ -723,9 +733,12 @@ class PopularBooksScreen(WindowInterface):
         self.root.destroy()
         MainScreen(tk.Tk(), self.library).display()
 
+    def on_closing(self):
+        messagebox.showwarning("Warning", "Please use the back button to return to the main screen.")
+
 
 if __name__ == '__main__':
-    library = Library()
+    library = Library.get_instance()
     root = tk.Tk()
     LoginScreen(root, library).display()
     root.mainloop()

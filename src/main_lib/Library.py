@@ -1,15 +1,18 @@
-import csv
+
 import os
 
 import pandas as pd
 
 from src.main_lib.Books import Books
+from src.main_lib.BooksCategory import BooksCategory
 from src.main_lib.LibraryServiceLocator import LibraryServiceLocator
 from src.main_lib.Logger import Logger
 from src.main_lib.BooksFactory import BooksFactory
 from src.main_lib.Delete_Books import DeleteBooks
+from src.main_lib.Rentals import Rentals
 from src.main_lib.Search_Books import SearchBooks
 from src.main_lib.Subject import Subject
+from src.main_lib.Users import User
 
 
 class Library(Subject):
@@ -20,7 +23,6 @@ class Library(Subject):
     Attributes:
         __instance (Library): Singleton instance of the Library class.
         __files (list): List of file paths for books, available_books, and not_available_books CSV files.
-        __books (list): List of books currently in the library.
     """
 
     __instance = None
@@ -46,6 +48,8 @@ class Library(Subject):
             from src.main_lib.Rentals import Rentals
             Rentals.get_instance()
             self.current_librarian=None
+            self.users=User.get_all_users()
+
 
 
     @staticmethod
@@ -64,35 +68,36 @@ class Library(Subject):
     def get_rentals(self):
         return LibraryServiceLocator.get_rentals()
 
-    def __str__(self):
-        """
-        Returns a string representation of all books in the library.
+    @Logger.log_method_call("Logged in")
+    def user_login(self, username, password):
+        user = next((u for u in self.users if u.get_username() == username), None)
+        if user and user.check_password(password):
+            self.current_librarian = user
+            self.subscribe(user)
+            return True
+        return False
 
-        Returns:
-            str: String representation of the books.
-        """
-        return "\n".join(str(book) for book in self.__books)
+    @Logger.log_method_call("Logged out")
+    def user_register(self, fullname, username, password):
+        if any(u.get_username() == username for u in self.users):
+            return False
+        else:
+            self.add_user(fullname,username,"librarian",password)
+            return True
 
-    def get_books(self):
-        """
-        Returns the list of books in the library.
+    @Logger.log_method_call("Logged out")
+    def user_logout(self):
+        if self.current_librarian is not None:
+            self.current_librarian=None
+            return True
+        else:
+            return False
 
-        Returns:
-            list: List of Books instances.
-        """
-        return self.__books
+
+
 
     @Logger.log_method_call("Book added")
     def add_book(self, title, author, copies, genre, year):
-        """
-        Adds a new book to the library if it does not already exist.
-
-        Args:
-            new_book (Books): Book instance to be added.
-
-        Returns:
-            bool: True if the book was added, False otherwise.
-        """
         return self.facbooks.create_books(title, author, copies, genre, year)
 
     @Logger.log_method_call("book removed")
@@ -103,17 +108,8 @@ class Library(Subject):
             return False
 
     def add_user(self, name, username, role, password):
-        """
-        Adds a new user to the library system.
-
-        Args:
-            name (str): Name of the user.
-            username (str): Username of the user.
-            role (str): Role of the user (e.g., Librarian).
-            password (str): Password for the user.
-        """
-        from src.main_lib.Users import User
         new_user=User(name, username, role, password)
+        self.users.append(new_user)
         if role == "librarian":
             self.subscribe(new_user)
 
@@ -124,12 +120,6 @@ class Library(Subject):
 
 
     def return_book(self, book):
-        """
-        Returns a book from a client.
-
-        Args:
-            book (Books): Book to be returned.
-        """
         rentals = self.get_rentals()
         return rentals.return_books(book)
 
@@ -169,6 +159,18 @@ class Library(Subject):
         Logger.log_add_message("Displayed popular books successfully")
         return top_10_books.to_dict(orient='records')
 
+    def display_category(self, category):
+        self.searcher.set_strategy("genre")
+        result=self.searcher.search_all(category)
+        if result== []:
+            Logger.log_add_message("Displayed category fail")
+            return []
+        else:
+            Logger.log_add_message("Displayed category successfully")
+            return result
+
+
+
     def search_book(self, name, strategy):
         self.searcher.set_strategy(strategy)
         df = self.searcher.search_all(name)
@@ -178,6 +180,17 @@ class Library(Subject):
             Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
         return df
 
+    def add_to_waiting_list(self, book,name,phone):
+        return Rentals.get_instance().add_to_waiting_list(book, name, phone)
+
+    def get_books_category(self):
+        return BooksCategory
+
+    def get_book(self,title,author,is_loaned,total_books,genre,year,popularity):
+        return Books(title=title,author=author,is_loaned=is_loaned,total_books=total_books
+                     ,genre=genre,year=year,popularity=popularity)
+
+
     def notify(self, message):
         if hasattr(self, 'current_librarian') and self.current_librarian:
             if self.current_librarian not in self.sub:
@@ -185,11 +198,3 @@ class Library(Subject):
                 self.subscribe(self.current_librarian)
             self.current_librarian.update(self, message)
 
-
-
-if __name__ == '__main__':
-    books_library = Library.get_instance()
-    # books_library.add_book("The Great Gatsby", "F. Scott Fitzgerald", 10, "Fiction", 1925)
-    book = Books("eytan life story", "eytan nalimov", "No", 3, "Psychological Drama", 2004, 0)
-    books_library.delete_book(book)
-    print(books_library)
