@@ -164,6 +164,8 @@ class RegisterScreen(WindowInterface):
                                     command=lambda: self.handle_registration(name_entry, username_entry,
                                                                              password_entry))
         register_button.pack(pady=20)
+        back_button = tk.Button(self.root, text="Back",command=self.go_back)
+        back_button.pack(pady=20)
 
     def handle_registration(self, name_entry, username_entry, password_entry):
         full_name = name_entry.get().strip()
@@ -180,6 +182,10 @@ class RegisterScreen(WindowInterface):
             messagebox.showinfo("Success", "User registered successfully!")
             self.root.destroy()
             LoginScreen(tk.Tk(), self.library).display()
+
+    def go_back(self):
+        self.root.destroy()
+        LoginScreen(tk.Tk(), self.library).display()
 
 
 class SearchScreen(WindowInterface):
@@ -629,7 +635,6 @@ class DisplayBooksScreen:
         # Treeview for displaying books in table format
         self.tree = ttk.Treeview(self.root, selectmode="browse")
         self.tree.pack(fill="both", expand=True, pady=10)
-        self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
         # Scrollbar for the Treeview
         scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.tree.yview)

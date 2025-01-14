@@ -1,4 +1,7 @@
 logged in successfully
-Search book 'itay' by title name completed successfully
-Book Returned fail
-Book Returned success
+Displayed available books successfully
+Displayed borrowed books successfully
+Displayed popular books successfully
+Search book 'Adventure' by genre name completed successfully
+Displayed all books successfully
+logged out successfully
