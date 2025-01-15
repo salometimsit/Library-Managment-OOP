@@ -101,58 +101,63 @@ class Rentals:
             print(f"Error updating book status: {e}")
             return False
 
-    def add_to_waiting_list(self, book: Books, name: str, phone: str) -> bool:
+    def add_to_waiting_list(self, book: Books, name: str, phone: str,email: str) -> bool:
         """Add person to book's waiting list"""
         df = pd.read_csv(self.__files[2])
+        df['waiting_list'] = df['waiting_list'].astype(str)
         book_filter = self.__create_book_filter(book)
         if not book_filter(df).any():
             return False
 
         current_list = df.loc[book_filter(df), 'waiting_list'].iloc[0]
-        new_entry = f"{name}:{phone}"
+        new_entry = f"{name}:{phone}:{email}"
 
-        if pd.isna(current_list) or current_list == '' or current_list == '[]':
-            return self.update_book_status(book, self.__files[2], {'waiting_list': new_entry})
+        if pd.isna(current_list) or current_list == 'nan' or current_list == '' or current_list == '[]':
+            df.loc[book_filter(df), 'waiting_list'] = new_entry
+            df.to_csv(self.__files[2], index=False)
+            return True
 
         waiting_list = current_list.split(';')
 
         # Check for existing entry
         for entry in waiting_list:
             if ':' in entry:
-                entry_name, entry_phone = entry.split(':')
-                if entry_name.strip().lower() == name.strip().lower() and entry_phone.strip() == phone.strip():
+                entry_name, entry_phone, entry_email = entry.split(':')
+                if entry_name.strip().lower() == name.strip().lower() and (entry_phone.strip() == phone.strip() or
+                        entry_email.strip() == email.strip()):
                     return False
 
         if len(waiting_list) >= 10:
             return False
 
-        return self.update_book_status(book, self.__files[2],
-                                       {'waiting_list': f"{current_list};{new_entry}"})
+        df.loc[book_filter(df), 'waiting_list'] = f"{current_list};{new_entry}"
+        df.to_csv(self.__files[2], index=False)
+        return True
 
-    def check_waiting_list(self, book: Books) -> Tuple[str, str]:
+    def check_waiting_list(self, book: Books) -> Tuple[str, str, str]:
         """Get and remove first person from waiting list"""
         df = pd.read_csv(self.__files[2])
         book_filter = self.__create_book_filter(book)
 
         if not book_filter(df).any():
-            return None, None
+            return None, None, None
 
         waiting_list = df.loc[book_filter(df), 'waiting_list'].iloc[0]
         if pd.isna(waiting_list) or waiting_list == '' or waiting_list == '[]':
-            return None, None
+            return None, None, None
 
         entries = waiting_list.split(';')
         if not entries:
-            return None, None
+            return None, None, None
 
         first_person = entries[0]
         if ':' not in first_person:
-            return None, None
+            return None, None, None
 
-        name, phone = first_person.split(':')
+        name, phone ,email= first_person.split(':')
         self.update_book_status(book, self.__files[2],
                                 {'waiting_list': ';'.join(entries[1:])})
-        return name.strip(), phone.strip()
+        return name.strip(), phone.strip() ,email.strip()
 
     @Logger.log_method_call("Book borrowed")
     def rent_books(self, book):
@@ -197,7 +202,7 @@ class Rentals:
                 updated_waiting_list = ';'.join(entries[1:])
 
         # בדיקה אם יש מישהו ברשימת המתנה
-        name, phone = self.check_waiting_list(book)
+        name, phone , email= self.check_waiting_list(book)
 
         # ביצוע ההחזרה
         return_success = self.__process_book_return(book, not_available_book)
@@ -206,7 +211,8 @@ class Rentals:
 
         # אם יש מישהו ברשימת המתנה
         if name and phone:
-            msg = f"The Book '{book.get_title()}' has been returned and should be transferred to {name}, Phone: {phone}"
+            msg = (f"The Book '{book.get_title()}' has been returned and should be transferred to {name},\n"
+                   f" Phone: {phone} \n Email: {email}")
             self.get_library().notify(msg)
             # השאלת הספר למי שממתין
             self.rent_books(book)

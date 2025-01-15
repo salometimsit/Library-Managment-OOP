@@ -170,8 +170,8 @@ class Library(Subject):
             Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
         return df
 
-    def add_to_waiting_list(self, book,name,phone):
-        return Rentals.get_instance().add_to_waiting_list(book, name, phone)
+    def add_to_waiting_list(self, book,name,phone,email):
+        return Rentals.get_instance().add_to_waiting_list(book, name, phone,email)
 
     def get_books_category(self):
         return BooksCategory

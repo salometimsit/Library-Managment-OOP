@@ -225,7 +225,7 @@ class SearchScreen(WindowInterface):
         search_term_entry = tk.Entry(self.root)
         search_term_entry.pack(pady=5)
 
-        self.tree = ttk.Treeview(self.root, selectmode="browse")  # שמירת ה-tree כתכונה של המחלקה
+        self.tree = ttk.Treeview(self.root, selectmode="browse")
         self.tree.pack(fill="both", expand=True, pady=10)
         self.tree.bind("<<TreeviewSelect>>", self.on_row_select)
 
@@ -359,6 +359,8 @@ class AddDetailsScreen(WindowInterface):
         SearchScreen(tk.Tk(), self.library).display()
 
     def show_waiting_list_form(self):
+        self.root.title("Details for waiting list")
+        self.root.geometry("400x400")
         for widget in self.root.winfo_children():
             widget.destroy()
 
@@ -372,28 +374,39 @@ class AddDetailsScreen(WindowInterface):
         phone_entry = tk.Entry(self.root)
         phone_entry.pack(pady=5)
 
+        email_label = tk.Label(self.root, text="Enter Your Email Address (name@example...):")
+        email_label.pack(pady=10)
+        email_entry = tk.Entry(self.root)
+        email_entry.pack(pady=5)
+
         submit_button = tk.Button(self.root, text="Add to Waiting List",
-                                  command=lambda: self.add_to_waiting_list(name_entry.get(), phone_entry.get()))
+                                  command=lambda: self.add_to_waiting_list(name_entry.get(), phone_entry.get(), email_entry.get()))
         submit_button.pack(pady=20)
 
         back_button = tk.Button(self.root, text="Back", command=self.go_back)
         back_button.pack(pady=10)
 
-    def add_to_waiting_list(self, name, phone):
+    def add_to_waiting_list(self, name, phone,email):
         if not self.is_valid_phone(phone):
             messagebox.showerror("Error", "Invalid phone number. Must be 10 digits starting with 05.")
             return
-        success = self.library.add_to_waiting_list(self.selected_book,name, phone)
+        if not self.is_valid_email(email):
+            messagebox.showerror("Error", "Invalid email address.")
+            return
+        success = self.library.add_to_waiting_list(self.selected_book,name, phone,email)
         if success:
             messagebox.showinfo("Success", f"Successfully added {name} to the waiting list.")
         else:
-            messagebox.showerror("Error", "The waiting list is full. Try again later.")
+            messagebox.showerror("Error", "Cannot add to the waiting list.\n Try again later.")
 
         self.root.destroy()
         SearchScreen(tk.Tk(), self.library).display()
 
     def is_valid_phone(self, phone):
         return len(phone) == 10 and phone.startswith("05") and phone.isdigit()
+
+    def is_valid_email(self, email):
+        return "@" in email and (".co.il" in email or ".ac" in email or ".com" in email)
 
     def go_back(self):
         self.root.destroy()
