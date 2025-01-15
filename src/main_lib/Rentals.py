@@ -243,10 +243,10 @@ class Rentals:
         if not_available:
             curr = int(not_available['copies'])
             self.update_book_status(book, self.__files[2],
-                                    {'copies': curr + 1, 'is_loaned': 'No'})
-            self.update_book_status(book, self.__files[0], {'is_loaned': 'No'})
+                                    {'copies': curr + 1})
         else:
             self.__add_to_not_available_csv(book, 1)
+        self.__update_loan_status_in_all_files(book, 'Yes')  # עדכון סטטוס בכל הקבצים
         self.__remove_from_csv(book, self.__files[1])
 
     def __handle_multiple_copy_return(self, book, curr_copies):
@@ -261,11 +261,16 @@ class Rentals:
 
     def __handle_single_copy_return(self, book):
         """Handle returning the last copy"""
-        self.update_book_status(book, self.__files[2],
-                                {'copies': 1, 'is_loaned': 'No'})
-        self.update_book_status(book, self.__files[0], {'is_loaned': 'No'})
+        self.__update_loan_status_in_all_files(book, 'No')  # עדכון סטטוס בכל הקבצים
+        self.update_book_status(book, self.__files[2], {'copies': 1})
         self.__add_to_available_csv(book, book.get_total_books())
         self.__remove_from_csv(book, self.__files[2])
+
+    def __update_loan_status_in_all_files(self, book, status):
+        """Update loan status in all relevant files"""
+        for file_path in self.__files:
+            if self.find_in_csv(book, file_path):
+                self.update_book_status(book, file_path, {'is_loaned': status})
 
     def __add_to_available_csv(self, book, copies):
         """Add book to available books CSV"""

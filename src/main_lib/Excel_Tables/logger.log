@@ -119,3 +119,18 @@
 2025-01-15 14:55:02 - Book borrowed successfully
 2025-01-15 14:55:06 - Book borrowed successfully
 2025-01-15 14:55:09 - Book borrowed fail
+2025-01-15 15:01:14 - Logged in successfully
+2025-01-15 15:01:28 - Displayed all books successfully
+2025-01-15 15:01:33 - Displayed category successfully
+2025-01-15 15:01:37 - Displayed available books successfully
+2025-01-15 15:01:46 - Search book 'ut' by author name completed successfully
+2025-01-15 15:01:55 - Displayed popular books successfully
+2025-01-15 15:02:00 - Logged out successfully
+2025-01-15 19:01:25 - Logged in successfully
+2025-01-15 19:01:30 - Search book 'mob' by title name completed successfully
+2025-01-15 19:01:32 - Book borrowed successfully
+2025-01-15 19:11:02 - Logged in successfully
+2025-01-15 19:11:08 - Search book 'mobi' by title name completed fail
+2025-01-15 19:11:12 - Search book 'moby' by title name completed successfully
+2025-01-15 19:11:14 - Book borrowed successfully
+2025-01-15 19:11:30 - Book returned successfully
