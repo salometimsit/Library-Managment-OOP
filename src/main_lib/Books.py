@@ -1,5 +1,4 @@
-import csv
-import os
+
 
 from src.main_lib.BooksCategory import BooksCategory
 
@@ -30,13 +29,23 @@ class Books:
             year (int): Year of publication.
             popularity (int): Popularity of the book.
         """
-        self.__title = title
-        self.__author = author
-        self.__is_loaned = str(is_loaned)
-        self.__total_books = int(total_books)
-        self.__genre = genre
-        self.__year = int(year)
-        self.__popularity = popularity
+        try:
+            self.__title = title
+            self.__author = author
+            if is_loaned != 'Yes' and is_loaned != 'No':
+                raise ValueError('Invalid value.')
+            self.__is_loaned = str(is_loaned)
+            if int(total_books) <= 0:
+                raise ValueError('Invalid value.')
+            self.__total_books = int(total_books)
+            self.__genre = genre
+            self.__year = int(year)
+            if int(popularity) < 0:
+                raise ValueError('Invalid value.')
+            self.__popularity = popularity
+        except ValueError as e:
+            raise ValueError("Invalid value.")
+
 
     @staticmethod
     def create_book(title, author, is_loaned, total_books, genre, year, popularity):

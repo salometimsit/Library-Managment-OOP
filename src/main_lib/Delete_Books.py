@@ -13,7 +13,8 @@ class DeleteBooks:
             match = df_not_available[
                 (df_not_available['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
                 (df_not_available['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
-                (df_not_available['year'].astype(int) == int(book.get_year()))
+                (df_not_available['year'].astype(int) == int(book.get_year()))&
+                (df_not_available['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
                 ]
             if not match.empty:
                 raise Exception("Delete failed, book is not available and cannot be removed.")

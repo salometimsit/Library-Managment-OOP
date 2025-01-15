@@ -48,10 +48,10 @@ class Library(Subject):
 
     def set_current_librarian(self, librarian):
         self.current_librarian = librarian
-        self.sub=[]
+        self._sub=[]
         if librarian and librarian.get_role() == "librarian":
             self.subscribe(librarian)
-            self.sub.append(librarian)
+            self._sub.append(librarian)
 
     def get_rentals(self):
         return LibraryServiceLocator.get_rentals()
@@ -183,8 +183,8 @@ class Library(Subject):
 
     def notify(self, message):
         if hasattr(self, 'current_librarian') and self.current_librarian:
-            if self.current_librarian not in self.sub:
-                self.sub = []
+            if self.current_librarian not in self._sub:
+                self._sub = []
                 self.subscribe(self.current_librarian)
             self.current_librarian.update(self, message)
 

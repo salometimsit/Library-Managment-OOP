@@ -103,6 +103,8 @@ class Rentals:
 
     def add_to_waiting_list(self, book: Books, name: str, phone: str,email: str) -> bool:
         """Add person to book's waiting list"""
+        if self.find_in_csv(book,self.__files[1]):
+            return False
         df = pd.read_csv(self.__files[2])
         df['waiting_list'] = df['waiting_list'].astype(str)
         book_filter = self.__create_book_filter(book)
