@@ -188,34 +188,27 @@ class Rentals:
         if not not_available_book:
             return False
 
-        # שמירת רשימת ההמתנה המקורית
         waiting_list = not_available_book.get('waiting_list', '')
         if pd.isna(waiting_list):
             waiting_list = ''
 
-        # יצירת רשימת ההמתנה המעודכנת (ללא האדם הראשון)
         updated_waiting_list = ''
         if waiting_list and waiting_list.strip():
             entries = waiting_list.split(';')
             if len(entries) > 1:
                 updated_waiting_list = ';'.join(entries[1:])
 
-        # בדיקה אם יש מישהו ברשימת המתנה
         name, phone , email= self.check_waiting_list(book)
 
-        # ביצוע ההחזרה
         return_success = self.__process_book_return(book, not_available_book)
         if not return_success:
             return False
 
-        # אם יש מישהו ברשימת המתנה
         if name and phone:
             msg = (f"The Book '{book.get_title()}' has been returned and should be transferred to {name},\n"
                    f" Phone: {phone} \n Email: {email}")
             self.get_library().notify(msg)
-            # השאלת הספר למי שממתין
             self.rent_books(book)
-            # עדכון רשימת ההמתנה לרשימה ללא האדם הראשון
             self.update_book_status(book, self.__files[2], {'waiting_list': updated_waiting_list})
 
         return True
@@ -246,7 +239,7 @@ class Rentals:
                                     {'copies': curr + 1})
         else:
             self.__add_to_not_available_csv(book, 1)
-        self.__update_loan_status_in_all_files(book, 'Yes')  # עדכון סטטוס בכל הקבצים
+        self.__update_loan_status_in_all_files(book, 'Yes')
         self.__remove_from_csv(book, self.__files[1])
 
     def __handle_multiple_copy_return(self, book, curr_copies):
@@ -261,7 +254,7 @@ class Rentals:
 
     def __handle_single_copy_return(self, book):
         """Handle returning the last copy"""
-        self.__update_loan_status_in_all_files(book, 'No')  # עדכון סטטוס בכל הקבצים
+        self.__update_loan_status_in_all_files(book, 'No')
         self.update_book_status(book, self.__files[2], {'copies': 1})
         self.__add_to_available_csv(book, book.get_total_books())
         self.__remove_from_csv(book, self.__files[2])
