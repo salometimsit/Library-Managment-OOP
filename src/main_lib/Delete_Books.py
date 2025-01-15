@@ -1,23 +1,11 @@
-# Delete_Books.py
-import os
+
 import pandas as pd
+
+from src.main_lib.FilesHandle import FilesHandle
 
 
 class DeleteBooks:
-    filenames = [os.path.join('Excel_Tables', 'books.csv'),
-                 os.path.join('Excel_Tables', 'available_books.csv'),
-                 os.path.join('Excel_Tables', 'not_available_books.csv')]
-    __files = []
-
-    for filename in filenames:
-        file_path = os.path.join(os.path.dirname(__file__), filename)
-        file_path = os.path.abspath(file_path)
-
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
-
-        __files.append(file_path)
-
+    __files=FilesHandle().get_file_by_category("book")
     @staticmethod
     def delete_books(book):
         try:

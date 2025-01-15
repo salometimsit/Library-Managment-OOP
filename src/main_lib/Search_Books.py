@@ -1,6 +1,7 @@
-import os
+
 import pandas as pd
 
+from src.main_lib.FilesHandle import FilesHandle
 from src.main_lib.SearchStrategy import SearchStrategy, TitleSearch, AuthorSearch, YearSearch, GenreSearch
 
 
@@ -25,17 +26,7 @@ class SearchBooks:
         self.__author_strategy = AuthorSearch()
         self.__year_strategy = YearSearch()
         self.__genre_strategy = GenreSearch()
-        filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
-                     'Excel_Tables/not_available_books.csv']
-        self.__files = []
-        for filename in filenames:
-            file_path = os.path.join(os.path.dirname(__file__), filename)
-            file_path = os.path.abspath(file_path)
-
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"File not found: {file_path}")
-
-            self.__files.append(file_path)
+        self.__files = FilesHandle().get_file_by_category("book")
 
     def set_strategy(self, strategy):
         """

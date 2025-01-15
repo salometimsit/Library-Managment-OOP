@@ -1,3 +1,26 @@
 Logged in successfully
+Add book fail
+Add book successfully
+book removed successfully
+book removed successfully
 Displayed popular books successfully
+Displayed all books successfully
+Displayed available books successfully
+Displayed borrowed books successfully
+Displayed popular books successfully
+Displayed category successfully
+Displayed category fail
+Search book 'thr' by title name completed successfully
+Search book 'the' by title name completed successfully
+Search book 'avi' by author name completed fail
+Search book 'itay' by author name completed successfully
+Search book '1999' by year name completed successfully
+Search book '2004' by year name completed fail
+Search book 'drama' by genre name completed successfully
+Search book 'comedy' by genre name completed fail
+Search book 'itay' by title name completed successfully
+Book returned successfully
+Book borrowed successfully
+Book borrowed successfully
+Book borrowed fail
 Logged out successfully

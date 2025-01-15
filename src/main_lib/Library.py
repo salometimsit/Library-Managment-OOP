@@ -1,10 +1,8 @@
-
-import os
-
 import pandas as pd
-
 from src.main_lib.Books import Books
 from src.main_lib.BooksCategory import BooksCategory
+from src.main_lib.Factory_of_Items import Factory_of_Items
+from src.main_lib.FilesHandle import FilesHandle
 from src.main_lib.LibraryServiceLocator import LibraryServiceLocator
 from src.main_lib.Logger import Logger
 from src.main_lib.BooksFactory import BooksFactory
@@ -22,7 +20,7 @@ class Library(Subject):
 
     Attributes:
         __instance (Library): Singleton instance of the Library class.
-        __files (list): List of file paths for books, available_books, and not_available_books CSV files.
+        __book_files (list): List of file paths for books, available_books, and not_available_books CSV files.
     """
 
     __instance = None
@@ -31,19 +29,9 @@ class Library(Subject):
         if Library.__instance is None:
             super().__init__()
             self.searcher = SearchBooks()
-            # Initialize file paths
-            filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
-                         'Excel_Tables/not_available_books.csv']
-            self.__files = []
-            for filename in filenames:
-                file_path = os.path.join(os.path.dirname(__file__), filename)
-                file_path = os.path.abspath(file_path)
-
-                if not os.path.exists(file_path):
-                    raise FileNotFoundError(f"File not found: {file_path}")
-
-                self.__files.append(file_path)
-            self.facbooks = BooksFactory(self.__files)
+            self.__files= FilesHandle().get_all_files()
+            self.__book_files = FilesHandle.get_file_by_category("book")
+            self.facbooks = BooksFactory(self.__book_files)
             LibraryServiceLocator.set_library(self)
             from src.main_lib.Rentals import Rentals
             Rentals.get_instance()
@@ -94,11 +82,8 @@ class Library(Subject):
             return False
 
 
-
-
-    @Logger.log_method_call("Book added")
-    def add_book(self, title, author, copies, genre, year):
-        return self.facbooks.create_books(title, author, copies, genre, year)
+    def add_item(self,type, title, author, copies, genre, year):
+        return Factory_of_Items.factory_of_items(type, title, author, copies, genre, year, self.__book_files)
 
     @Logger.log_method_call("book removed")
     def delete_book(self, book):
@@ -124,7 +109,7 @@ class Library(Subject):
         return rentals.return_books(book)
 
     def display_all_books(self):
-        df = pd.read_csv(self.__files[0])
+        df = pd.read_csv(self.__book_files[0])
         if df.empty:
             Logger.log_add_message("Displayed all books fail")
             raise FileNotFoundError("File not found")
@@ -132,7 +117,7 @@ class Library(Subject):
         return df.to_dict(orient='records')
 
     def display_not_available_books(self):
-        df = pd.read_csv(self.__files[2])
+        df = pd.read_csv(self.__book_files[2])
         if df.empty:
             Logger.log_add_message("Displayed borrowed books fail")
             raise FileNotFoundError("File not found")
@@ -140,7 +125,7 @@ class Library(Subject):
         return df.to_dict(orient='records')
 
     def display_available_books(self):
-        df = pd.read_csv(self.__files[1])
+        df = pd.read_csv(self.__book_files[1])
         if df.empty:
             Logger.log_add_message("Displayed available books fail")
             raise FileNotFoundError("File not found")
@@ -148,7 +133,7 @@ class Library(Subject):
         return df.to_dict(orient='records')
 
     def display_popular_books(self):
-        df = pd.read_csv(self.__files[0])
+        df = pd.read_csv(self.__book_files[0])
         if df.empty:
             Logger.log_add_message("Displayed popular books fail")
             raise FileNotFoundError("File not found")
@@ -159,7 +144,7 @@ class Library(Subject):
         Logger.log_add_message("Displayed popular books successfully")
         return top_10_books.to_dict(orient='records')
 
-    def display_category(self, category):
+    def display_genre(self, category):
         self.searcher.set_strategy("genre")
         result=self.searcher.search_all(category)
         if result== []:
@@ -168,7 +153,6 @@ class Library(Subject):
         else:
             Logger.log_add_message("Displayed category successfully")
             return result
-
 
 
     def search_book(self, name, strategy):

@@ -1,9 +1,7 @@
-import os
-from zoneinfo import available_timezones
-
 import pandas as pd
 from src.main_lib.Books import Books
 from src.main_lib.BooksCategory import BooksCategory
+from src.main_lib.FilesHandle import FilesHandle
 
 from src.main_lib.Search_Books import SearchBooks
 
@@ -79,17 +77,7 @@ class BooksFactory:
 
 
 if __name__ == '__main__':
-    filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
-                 'Excel_Tables/not_available_books.csv']
-    __files = []
-    for filename in filenames:
-        file_path = os.path.join(os.path.dirname(__file__), filename)
-        file_path = os.path.abspath(file_path)
-
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"File not found: {file_path}")
-
-        __files.append(file_path)
+    __files=FilesHandle().get_file_by_category("book")
     b=BooksFactory(__files)
     ans=b.create_books("To Kill a Mockingbird","Harper Lee", 5,"Fiction",1960)
     ans2=b.create_books("Pride and Prejudice","Jane Austen",2,"Romance",1813)

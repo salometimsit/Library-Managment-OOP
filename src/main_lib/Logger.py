@@ -1,15 +1,12 @@
 import logging
 import os
 
+from src.main_lib.FilesHandle import FilesHandle
+
 
 class Logger:
-    file_path = os.path.join(os.path.dirname(__file__), 'Excel_Tables/logger.log')
-    file_path = os.path.abspath(file_path)
-
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
     logging.basicConfig(
-        level=logging.INFO, format='%(message)s', filename=file_path, filemode='w'
+        level=logging.INFO, format='%(message)s', filename=FilesHandle().get_logger_file(), filemode='w'
     )
 
     @staticmethod

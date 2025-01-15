@@ -4,6 +4,7 @@ from typing import Tuple
 import pandas as pd
 
 from src.main_lib.Books import Books
+from src.main_lib.FilesHandle import FilesHandle
 from src.main_lib.LibraryServiceLocator import LibraryServiceLocator
 from src.main_lib.Logger import Logger
 from src.main_lib.Search_Books import SearchBooks
@@ -26,17 +27,7 @@ class Rentals:
 
     def __initialize_files(self):
         """Initialize and validate file paths"""
-        self.__files = []
-        filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
-                     'Excel_Tables/not_available_books.csv']
-
-        for filename in filenames:
-            file_path = os.path.join(os.path.dirname(__file__), filename)
-            file_path = os.path.abspath(file_path)
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"File not found: {file_path}")
-            self.__files.append(file_path)
-
+        self.__files = FilesHandle().get_file_by_category("book")
         self.__ensure_waiting_list_column()
 
     def __ensure_waiting_list_column(self):

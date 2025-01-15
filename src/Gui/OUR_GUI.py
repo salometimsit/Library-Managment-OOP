@@ -458,7 +458,7 @@ class AddBookScreen(WindowInterface):
             messagebox.showerror("Error", "Copies and Year must be integers!")
             return
 
-        success = self.library.add_book(title, author, copies, category, year)
+        success = self.library.add_item("Book",title, author, copies, category, year)
 
         if success:
             messagebox.showinfo("Success", f"Book '{title}' added successfully!")
@@ -674,7 +674,7 @@ class DisplayBooksScreen(WindowInterface):
                 if not genre:
                     messagebox.showerror("Error", "Please select a genre.")
                     return
-                books = self.library.display_category(genre)
+                books = self.library.display_genre(genre)
             else:
                 raise ValueError("Invalid option selected.")
 
