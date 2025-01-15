@@ -1,26 +1,58 @@
-Logged in successfully
-Add book fail
-Add book successfully
-book removed successfully
-book removed successfully
-Displayed popular books successfully
-Displayed all books successfully
-Displayed available books successfully
-Displayed borrowed books successfully
-Displayed popular books successfully
-Displayed category successfully
-Displayed category fail
-Search book 'thr' by title name completed successfully
-Search book 'the' by title name completed successfully
-Search book 'avi' by author name completed fail
-Search book 'itay' by author name completed successfully
-Search book '1999' by year name completed successfully
-Search book '2004' by year name completed fail
-Search book 'drama' by genre name completed successfully
-Search book 'comedy' by genre name completed fail
-Search book 'itay' by title name completed successfully
-Book returned successfully
-Book borrowed successfully
-Book borrowed successfully
-Book borrowed fail
-Logged out successfully
+2025-01-15 12:22:30 - Logged out successfully
+2025-01-15 12:22:35 - Logged out fail
+2025-01-15 12:22:41 - Logged in fail
+2025-01-15 12:22:45 - Logged in successfully
+2025-01-15 12:23:01 - Add book successfully
+2025-01-15 12:23:10 - Add book fail
+2025-01-15 12:23:28 - book removed successfully
+2025-01-15 12:23:35 - Search book 'thr' by title name completed successfully
+2025-01-15 12:23:40 - Search book '23' by title name completed fail
+2025-01-15 12:23:44 - Search book '23' by author name completed fail
+2025-01-15 12:23:49 - Search book 'itay' by author name completed successfully
+2025-01-15 12:23:53 - Search book '2004' by year name completed fail
+2025-01-15 12:23:58 - Search book '1999' by year name completed successfully
+2025-01-15 12:24:06 - Search book 'comedy' by genre name completed fail
+2025-01-15 12:24:10 - Search book 'drama' by genre name completed successfully
+2025-01-15 12:24:14 - Book borrowed fail
+2025-01-15 12:24:45 - Search book 'drama' by genre name completed successfully
+2025-01-15 12:24:52 - Book returned successfully
+2025-01-15 12:25:16 - Book borrowed successfully
+2025-01-15 12:25:18 - Book borrowed fail
+2025-01-15 12:25:36 - Search book 'as' by title name completed successfully
+2025-01-15 12:25:38 - Book returned successfully
+2025-01-15 12:26:06 - Displayed all books successfully
+2025-01-15 12:26:08 - Displayed available books successfully
+2025-01-15 12:26:11 - Displayed borrowed books successfully
+2025-01-15 12:26:14 - Displayed popular books successfully
+2025-01-15 12:26:18 - Displayed category successfully
+2025-01-15 12:26:23 - Displayed popular books successfully
+2025-01-15 12:26:24 - Logged out successfully
+2025-01-15 12:27:08 - Logged in successfully
+2025-01-15 12:27:13 - Search book 'itay' by title name completed successfully
+2025-01-15 12:27:16 - Book returned successfully
+2025-01-15 12:27:18 - Book borrowed successfully
+2025-01-15 12:27:22 - Book returned successfully
+2025-01-15 12:27:25 - Book borrowed successfully
+2025-01-15 12:27:27 - Book borrowed fail
+2025-01-15 12:27:41 - Search book 'itay' by title name completed successfully
+2025-01-15 12:27:43 - Book returned successfully
+2025-01-15 12:27:45 - Book borrowed successfully
+2025-01-15 12:27:51 - Search book 'as' by title name completed successfully
+2025-01-15 12:27:54 - Book borrowed successfully
+2025-01-15 12:27:56 - Book borrowed fail
+2025-01-15 12:28:17 - Search book 'as' by title name completed successfully
+2025-01-15 12:28:24 - Book returned successfully
+2025-01-15 12:28:35 - Logged out successfully
+2025-01-15 12:33:13 - Logged in successfully
+2025-01-15 12:33:18 - Search book 'as' by title name completed successfully
+2025-01-15 12:33:21 - Book borrowed successfully
+2025-01-15 12:33:25 - Book borrowed fail
+2025-01-15 12:33:42 - Search book 'as' by title name completed successfully
+2025-01-15 12:33:44 - Book returned successfully
+2025-01-15 12:33:45 - Book borrowed successfully
+2025-01-15 12:33:56 - Book borrowed fail
+2025-01-15 12:34:27 - Search book 'as' by title name completed successfully
+2025-01-15 12:34:31 - Book borrowed fail
+2025-01-15 12:34:46 - Search book 'as' by title name completed successfully
+2025-01-15 12:34:48 - Book returned successfully
+2025-01-15 12:34:50 - Book borrowed successfully

@@ -65,6 +65,12 @@ class Library(Subject):
             return True
         return False
 
+    def check_login(self):
+        if self.current_librarian is None:
+            return False
+        return True
+
+
     @Logger.log_method_call("Logged out")
     def user_register(self, fullname, username, password):
         if any(u.get_username() == username for u in self.users):

@@ -5,9 +5,9 @@ from src.main_lib.FilesHandle import FilesHandle
 
 
 class Logger:
-    logging.basicConfig(
-        level=logging.INFO, format='%(message)s', filename=FilesHandle().get_logger_file(), filemode='w'
-    )
+
+    logging.basicConfig(level=logging.INFO,format='%(asctime)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S',filename=FilesHandle().get_logger_file(), filemode='a')
 
     @staticmethod
     def log_method_call(message):

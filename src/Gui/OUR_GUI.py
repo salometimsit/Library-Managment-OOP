@@ -2,6 +2,7 @@ import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pandas as pd
+
 from src.main_lib.Library import Library
 from src.main_lib.Logger import Logger
 
@@ -12,6 +13,9 @@ class WindowInterface:
         self.library = library
         self.center_window()
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+        if not isinstance(self, (LoginScreen, RegisterScreen)) and not self.library.check_login():
+            messagebox.showerror("Error", "Login needed to be for open the system")
+            self.root.destroy()
 
     def display(self):
         raise NotImplementedError("This method should be implemented by subclasses.")

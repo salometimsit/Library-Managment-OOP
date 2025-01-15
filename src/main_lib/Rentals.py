@@ -180,33 +180,39 @@ class Rentals:
         return True
 
     def return_books(self, book):
-
         not_available_book = self.find_in_csv(book, self.__files[2])
         if not not_available_book:
             return False
 
+        # שמירת רשימת ההמתנה המקורית
         waiting_list = not_available_book.get('waiting_list', '')
         if pd.isna(waiting_list):
             waiting_list = ''
-        else:
-            waiting_list=str(waiting_list)
+
+        # יצירת רשימת ההמתנה המעודכנת (ללא האדם הראשון)
         updated_waiting_list = ''
         if waiting_list and waiting_list.strip():
             entries = waiting_list.split(';')
             if len(entries) > 1:
                 updated_waiting_list = ';'.join(entries[1:])
 
-        return_success = self.__process_book_return(book, not_available_book)
+        # בדיקה אם יש מישהו ברשימת המתנה
+        name, phone = self.check_waiting_list(book)
 
+        # ביצוע ההחזרה
+        return_success = self.__process_book_return(book, not_available_book)
         if not return_success:
             return False
 
-        name, phone = self.check_waiting_list(book)
+        # אם יש מישהו ברשימת המתנה
         if name and phone:
             msg = f"The Book '{book.get_title()}' has been returned and should be transferred to {name}, Phone: {phone}"
             self.get_library().notify(msg)
+            # השאלת הספר למי שממתין
             self.rent_books(book)
+            # עדכון רשימת ההמתנה לרשימה ללא האדם הראשון
             self.update_book_status(book, self.__files[2], {'waiting_list': updated_waiting_list})
+
         return True
 
     def add_popularity(self, book):
