@@ -31,23 +31,84 @@ class BooksFactory:
         df.to_csv(self.__files[0], index=False)
         return book
 
-    def add_to_available(self,title,author,copies,genre,year,book):
-        available_df = pd.read_csv(self.__files[1])
-        filtered_available_df = available_df[(available_df['author'] == author) &
-                                             (available_df['title'] == title) &
-                                             (available_df['genre'] == genre) &
-                                             (available_df['year'] == year)]
+    def add_to_available(self, title, author, copies, genre, year, book):
+        not_available_df = pd.read_csv(self.__files[2])
+        book_found = not_available_df[(not_available_df['author'] == author) &
+                                      (not_available_df['title'] == title) &
+                                      (not_available_df['genre'] == genre) &
+                                      (not_available_df['year'] == year)]
 
-        if not filtered_available_df.empty:
+        if not book_found.empty and 'waiting_list' in book_found.columns:
+            waiting_list = book_found['waiting_list'].iloc[0]
 
-            available_df.loc[(available_df['author'] == author) & (available_df['title'] == title)
-                             & (available_df['genre'] == genre) & (available_df['year'] == year),
-            "copies"] += copies
-        else:
-            new_available_book = {"title": title, "author": author, "is_loaned": "No", "copies": copies
-                , "genre": genre, "year": year, "popularity": book["popularity"].values[0]}
-            available_df = pd.concat([available_df, pd.DataFrame([new_available_book])], ignore_index=True)
-        available_df.to_csv(self.__files[1], index=False)
+            if pd.notna(waiting_list) and waiting_list.strip():
+                from src.main_lib.Library import Library
+                lib = Library.get_instance()
+
+                temp_book = lib.get_book(
+                    title=title,
+                    author=author,
+                    is_loaned="No",
+                    total_books=copies,
+                    genre=genre,
+                    year=year,
+                    popularity=book["popularity"].values[0]
+                )
+
+                waiting_people = waiting_list.split(';')
+                copies_used = 0
+                copies_left = copies
+                updated_list = waiting_people.copy()
+
+                for person in waiting_people:
+                    if copies_left <= 0:
+                        break
+
+                    name, phone = person.split(':')
+                    lib.notify(f"Book '{title}' is available for {name}, Phone: {phone}")
+                    lib.rent_book(temp_book)
+                    updated_list.remove(person)
+                    copies_left -= 1
+                    copies_used += 1
+
+                new_waiting_list = ';'.join(updated_list) if updated_list else ''
+                current_copies = int(book_found['copies'].iloc[0])
+
+                # עדכון מספר עותקים וrenting list
+                not_available_df.loc[book_found.index, 'copies'] = current_copies + copies_used
+                not_available_df.loc[book_found.index, 'waiting_list'] = new_waiting_list
+                not_available_df.to_csv(self.__files[2], index=False)
+
+                if copies_left == 0:
+                    return
+
+                copies = copies_left
+
+        if copies > 0:
+            available_df = pd.read_csv(self.__files[1])
+            available_book = available_df[(available_df['author'] == author) &
+                                          (available_df['title'] == title) &
+                                          (available_df['genre'] == genre) &
+                                          (available_df['year'] == year)]
+
+            if not available_book.empty:
+                available_df.loc[(available_df['author'] == author) &
+                                 (available_df['title'] == title) &
+                                 (available_df['genre'] == genre) &
+                                 (available_df['year'] == year), "copies"] += copies
+            else:
+                new_book = {
+                    "title": title,
+                    "author": author,
+                    "is_loaned": "No",
+                    "copies": copies,
+                    "genre": genre,
+                    "year": year,
+                    "popularity": book["popularity"].values[0]
+                }
+                available_df = pd.concat([available_df, pd.DataFrame([new_book])], ignore_index=True)
+
+            available_df.to_csv(self.__files[1], index=False)
 
     def check_not_available(self,title,author,genre,year):
         not_available_df = pd.read_csv(self.__files[2])
