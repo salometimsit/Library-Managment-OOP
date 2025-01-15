@@ -406,7 +406,14 @@ class AddDetailsScreen(WindowInterface):
         return len(phone) == 10 and phone.startswith("05") and phone.isdigit()
 
     def is_valid_email(self, email):
-        return "@" in email and (".co.il" in email or ".ac" in email or ".com" in email)
+        if email.count("@")>1 or email.count("@")==0:
+            return False
+        local, domain = email.split("@")
+        if ".." in domain:
+            return False
+        if ".co.il" in local or ".ac" in local or ".com" in local:
+            return False
+        return ".co.il" in domain or ".ac" in domain or ".com" in domain
 
     def go_back(self):
         self.root.destroy()
@@ -656,16 +663,16 @@ class DisplayBooksScreen(WindowInterface):
         self.back_button.pack(pady=10)
 
     def toggle_genre_selection(self, event):
-        self.display_button.pack_forget()
-        """Show or hide genre selection widgets based on category."""
-        if self.option_combobox.get() == "Genre":
+        current_option = self.option_combobox.get()
+
+        if current_option == "Genre":
+            self.display_button.pack_forget()
             self.genre_label.pack(pady=5)
             self.genre_combobox.pack(pady=5)
             self.display_button.pack(pady=10)
-        else:
+        elif self.genre_label.winfo_ismapped():
             self.genre_label.pack_forget()
             self.genre_combobox.pack_forget()
-            self.display_button.pack(pady=10)
 
     def go_back(self):
         self.root.destroy()

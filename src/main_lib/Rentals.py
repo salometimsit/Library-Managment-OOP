@@ -123,8 +123,7 @@ class Rentals:
         for entry in waiting_list:
             if ':' in entry:
                 entry_name, entry_phone, entry_email = entry.split(':')
-                if entry_name.strip().lower() == name.strip().lower() and (entry_phone.strip() == phone.strip() or
-                        entry_email.strip() == email.strip()):
+                if entry_phone.strip() == phone.strip() or entry_email.strip() == email.strip():
                     return False
 
         if len(waiting_list) >= 10:
