@@ -2,6 +2,8 @@ import base64
 import csv
 import hashlib
 import os
+
+from src.main_lib.FilesHandle import FilesHandle
 from src.main_lib.Observer import Observer
 
 class User(Observer):
@@ -109,11 +111,9 @@ class User(Observer):
         """
         Saves the user's data to the users.csv file if the username does not already exist.
         """
-        file_path = os.path.join(os.path.dirname(__file__), "Excel_Tables/users.csv")
-        file_path = os.path.abspath(file_path)
+        file_path=FilesHandle().get_file_by_category("users.csv")
         file_exists = os.path.isfile(file_path)
         existing_users = set()
-
         if file_exists:
             with open(file_path, mode='r', newline='') as file:
                 reader = csv.DictReader(file)
