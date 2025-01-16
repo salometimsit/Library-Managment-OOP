@@ -148,3 +148,39 @@
 2025-01-15 22:25:40 - Book returned successfully
 2025-01-15 22:25:42 - Book borrowed successfully
 2025-01-15 22:25:46 - Logged out successfully
+2025-01-16 10:31:30 - Logged in successfully
+2025-01-16 10:31:44 - Search book 'the' by author name completed fail
+2025-01-16 10:31:51 - Search book 'the  Great' by author name completed fail
+2025-01-16 10:31:57 - Search book 'the  Great' by title name completed fail
+2025-01-16 10:32:01 - Search book 'the  Great' by year name completed fail
+2025-01-16 10:32:25 - Search book 'A Game of Thrones' by year name completed fail
+2025-01-16 10:32:37 - Logged out successfully
+2025-01-16 12:46:18 - Logged in successfully
+2025-01-16 12:46:44 - Search book 'A Game of Thrones' by title name completed successfully
+2025-01-16 12:46:53 - Search book 'A Game of Thrones' by title name completed successfully
+2025-01-16 12:47:17 - Search book 'A Game of Thrones' by title name completed successfully
+2025-01-16 12:47:24 - Book returned successfully
+2025-01-16 12:47:43 - Book borrowed successfully
+2025-01-16 14:48:13 - Add book fail
+2025-01-16 14:48:13 - Logged in successfully
+2025-01-16 14:48:13 - Displayed all books successfully
+2025-01-16 14:48:13 - Add book fail
+2025-01-16 14:48:13 - Book borrowed fail
+2025-01-16 14:48:13 - Add book fail
+2025-01-16 14:48:13 - Book borrowed fail
+2025-01-16 14:48:13 - Logged in successfully
+2025-01-16 14:48:14 - Logged in fail
+2025-01-16 14:48:14 - Logged in successfully
+2025-01-16 14:48:14 - Logged out successfully
+2025-01-16 16:49:09 - Logged in successfully
+2025-01-16 16:49:25 - Search book 'salome' by title name completed successfully
+2025-01-16 16:49:42 - Book borrowed successfully
+2025-01-16 16:49:55 - Book returned successfully
+2025-01-16 16:50:04 - Search book 'itay' by title name completed successfully
+2025-01-16 16:50:40 - Displayed popular books successfully
+2025-01-16 16:50:54 - Logged out successfully
+2025-01-16 16:51:30 - Logged out successfully
+2025-01-16 16:51:44 - Logged in successfully
+2025-01-16 16:52:31 - Add book successfully
+2025-01-16 16:52:42 - Search book 'tahel' by title name completed successfully
+2025-01-16 16:52:52 - Logged out successfully
