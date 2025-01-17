@@ -448,7 +448,7 @@ class AddBookScreen(WindowInterface):
         self._copies_entry = tk.Entry(self._root)
         self._copies_entry.grid(row=2, column=1, padx=10, pady=10)
 
-        self._category_label = tk.Label(self._root, text="Category:")
+        self._category_label = tk.Label(self._root, text="Genre:")
         self._category_label.grid(row=3, column=0, padx=10, pady=10)
         self._category_combobox = ttk.Combobox(self._root, values=[category.value for category in self._library.get_books_category()])
         self._category_combobox.grid(row=3, column=1, padx=10, pady=10)
@@ -524,7 +524,7 @@ class RemoveBookScreen(WindowInterface):
         self._author_entry = tk.Entry(self._root)
         self._author_entry.grid(row=1, column=1, padx=10, pady=10)
 
-        self._category_label = tk.Label(self._root, text="Category:")
+        self._category_label = tk.Label(self._root, text="Genre:")
         self._category_label.grid(row=2, column=0, padx=10, pady=10)
         self._category_combobox = ttk.Combobox(self._root, values=[category.value for category in self._library.get_books_category()])
         self._category_combobox.grid(row=2, column=1, padx=10, pady=10)

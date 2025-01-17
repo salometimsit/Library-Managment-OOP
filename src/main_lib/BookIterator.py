@@ -1,6 +1,13 @@
-import pandas as pd
+
+from src.main_lib.FilesHandle import FilesHandle
+
+
 class BookIterator:
     def __init__(self, df,column=None,value=None,filter_conditions=None):
+        def normalize_spaces(text):
+            return ' '.join(str(text).split())
+        __files = FilesHandle().get_file_by_category("book")
+        value=normalize_spaces(value)
         if column and value:
             self.df = df[df[column].astype(str).str.contains(str(value), case=False, na=False)]
         elif filter_conditions:

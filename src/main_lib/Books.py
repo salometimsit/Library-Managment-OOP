@@ -32,7 +32,7 @@ class Books:
         try:
             self.__title = title
             self.__author = author
-            if is_loaned != 'Yes' and is_loaned != 'No':
+            if is_loaned.lower() != 'yes' and is_loaned.lower() != 'no':
                 raise ValueError('Invalid value.')
             self.__is_loaned = str(is_loaned)
             if int(total_books) <= 0:

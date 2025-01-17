@@ -5,16 +5,18 @@ from src.main_lib.FilesHandle import FilesHandle
 
 
 class DeleteBooks:
-    __files=FilesHandle().get_file_by_category("book")
     @staticmethod
     def delete_books(book):
+        def normalize_spaces(text):
+            return ' '.join(str(text).split())
+        __files = FilesHandle().get_file_by_category("book")
         try:
-            df_not_available = pd.read_csv(DeleteBooks.__files[2])
+            df_not_available = pd.read_csv(__files[2])
             match = df_not_available[
-                (df_not_available['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                (df_not_available['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                (df_not_available['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
+                (df_not_available['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                 (df_not_available['year'].astype(int) == int(book.get_year()))&
-                (df_not_available['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
+                (df_not_available['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())
                 ]
             if not match.empty:
                 raise Exception("Delete failed, book is not available and cannot be removed.")
@@ -24,31 +26,31 @@ class DeleteBooks:
             raise Exception(f"Error while checking not available books: {e}")
 
         try:
-            df_books = pd.read_csv(DeleteBooks.__files[0])
-            df_available = pd.read_csv(DeleteBooks.__files[1])
+            df_books = pd.read_csv(__files[0])
+            df_available = pd.read_csv(__files[1])
 
             book_in_books = df_books[
-                (df_books['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                (df_books['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                (df_books['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
+                (df_books['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                 (df_books['year'].astype(int) == int(book.get_year())) &
-                (df_books['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
+                (df_books['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())
                 ]
 
             book_in_available = df_available[
-                (df_available['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                (df_available['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+                (df_available['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
+                (df_available['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                 (df_available['year'].astype(int) == int(book.get_year())) &
-                (df_available['genre'].str.strip().str.lower() == book.get_genre().strip().lower())
+                (df_available['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())
                 ]
 
             if book_in_books.empty and book_in_available.empty:
                 raise Exception("Delete failed, book not found in books or available books.")
 
             if not book_in_books.empty:
-                DeleteBooks.delete_from_csv(DeleteBooks.__files[0], book)
+                DeleteBooks.delete_from_csv(__files[0], book)
 
             if not book_in_available.empty:
-                DeleteBooks.delete_from_csv(DeleteBooks.__files[1], book)
+                DeleteBooks.delete_from_csv(__files[1], book)
             return True
 
         except Exception:
@@ -56,20 +58,22 @@ class DeleteBooks:
 
     @staticmethod
     def delete_from_csv(file, book):
+        def normalize_spaces(text):
+            return ' '.join(str(text).split())
         try:
             df = pd.read_csv(file)
-            match = df[(df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                       (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+            match = df[(df['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
+                       (df['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                        (df['year'].astype(int) == int(book.get_year()))&
-                        (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower())]
+                        (df['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())]
 
             if match.empty:
                 print(f"Book '{book.get_title()}' not found in {file}.")
 
-            df = df[~((df['title'].str.strip().str.lower() == book.get_title().strip().lower()) &
-                      (df['author'].str.strip().str.lower() == book.get_author().strip().lower()) &
+            df = df[~((df['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
+                      (df['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                       (df['year'].astype(int) == int(book.get_year()))&
-                    (df['genre'].str.strip().str.lower() == book.get_genre().strip().lower()))]
+                    (df['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower()))]
 
             df.to_csv(file, index=False)
 

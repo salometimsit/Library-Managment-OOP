@@ -43,6 +43,12 @@ class TestBookIterator(unittest.TestCase):
         self.assertEqual(len(books), 1)
         self.assertEqual(books[0]['title'], 'The Hobbit')
 
+    def test_space_sensitivity(self):
+        iterator = BookIterator(self.df,column='title', value='Harry           Potter      ')
+        books = list(iterator)
+        self.assertEqual(len(books), 1)
+        self.assertEqual(books[0]['title'], 'Harry Potter')
+
     def test_empty_result(self):
         with self.assertRaises(Exception) as context:
             BookIterator(self.df, column='author', value='itay')
