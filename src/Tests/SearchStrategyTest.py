@@ -15,6 +15,7 @@ class TestSearchStrategies(unittest.TestCase):
             "genre": ["Historical Fiction", "Classic", "Epic Poetry"]
         })
 
+
     def test_title_search(self):
         search = TitleSearch()
         result = search.search(self.df, "War and Peace")

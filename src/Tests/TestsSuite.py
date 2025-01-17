@@ -9,12 +9,18 @@ from LoggerTest import TestLogger
 from RentalsTest import RentalsTest
 from SearchStrategyTest import TestSearchStrategies
 from UsersTest import UsersTest
+from src.Tests.BookIteratorTest import TestBookIterator
+from src.Tests.ObserverTest import ObserverTest
+from src.Tests.Search_BooksTest import SearchBooksTest
+from src.Tests.SubjectTest import SubjectTests
+
 
 
 def create_test_suite():
     test_suite = unittest.TestSuite()
-    test_classes = [BooksFactoryTest,BookTest,DeleteBooksTest,FactoryOfItemsTest,FilesHandleTest,LibraryTest,
-        TestLogger,RentalsTest,TestSearchStrategies,UsersTest]
+    test_classes = [TestBookIterator,BooksFactoryTest,BookTest,DeleteBooksTest,FactoryOfItemsTest,FilesHandleTest,
+                    LibraryTest,TestLogger,ObserverTest,RentalsTest,SearchBooksTest,TestSearchStrategies,
+                    SubjectTests,UsersTest]
 
     for test_class in test_classes:
         tests = unittest.TestLoader().loadTestsFromTestCase(test_class)

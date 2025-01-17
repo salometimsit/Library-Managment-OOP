@@ -7,10 +7,9 @@ from src.main_lib.FilesHandle import FilesHandle
 class FilesHandleTest(unittest.TestCase):
     def setUp(self):
         try:
-            # Go up one level from Tests to src, then into main_lib/Excel_Tables
-            test_dir = os.path.dirname(__file__)  # Gets Tests directory
-            src_dir = os.path.dirname(test_dir)  # Goes up to src directory
-            base_path = os.path.join(src_dir, "main_lib")  # Goes into main_lib
+            test_dir = os.path.dirname(__file__)
+            src_dir = os.path.dirname(test_dir)
+            base_path = os.path.join(src_dir, "main_lib")
 
             filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
                          'Excel_Tables/not_available_books.csv', 'Excel_Tables/users.csv',
