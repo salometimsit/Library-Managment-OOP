@@ -140,11 +140,3 @@ class Books:
             f"Total Copies: {self.__total_books}, Genre: {self.__genre}, Year: {self.__year}, Popularity: {self.__popularity}"
         )
 
-if __name__ == "__main__":
-    from Library import Library
-    lib = Library.get_instance()
-    lib.add_book("salome", "salome", 5, 10, "Drama", 2002, 0)
-    lib.add_book("itay", "itay", "No", 10, "Drama", 1999, 0)
-    lib.rent_book()
-
-    book1 = Books("The Great Gatsby", "F. Scott Fitzgerald", "No", 10, "Fiction", 1925, 0)
