@@ -136,19 +136,20 @@ class Library(Subject):
            bool: True if logout is successful, False otherwise.
        """
         if self.current_librarian is not None:
+            self.unsubscribe(self.current_librarian)
             self.current_librarian=None
             return True
         else:
             return False
 
 
-    def add_item(self,type, title, author, copies, genre, year):
+    def add_item(self,types, title, author, copies, genre, year):
         """
         Adds an item to the library.
         Returns:
-            object: The created item instance.
+            bool: True if item was added, False otherwise.
         """
-        return Factory_of_Items.factory_of_items(type, title, author, copies, genre, year, self.__book_files)
+        return Factory_of_Items.factory_of_items(types, title, author, copies, genre, year, self.__book_files)
 
     @Logger.log_method_call("book removed")
     def delete_book(self, book):
