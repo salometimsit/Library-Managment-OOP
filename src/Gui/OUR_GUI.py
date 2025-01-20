@@ -488,7 +488,7 @@ class AddBookScreen(WindowInterface):
             messagebox.showinfo("Success", f"Book '{title}' added successfully!")
             self.clear_fields()
         else:
-            messagebox.showwarning("Warning", f"Book '{title}' already exists. Copies updated.")
+            messagebox.showwarning("Warning", f"Book '{title}' Cannot be added!\ncheck if copies updated")
 
     def clear_fields(self):
         self._title_entry.delete(0, tk.END)

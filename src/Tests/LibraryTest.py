@@ -52,9 +52,8 @@ class LibraryTest(LibraryTestCase):
 
     def test_display_genre(self):
         self.library.user_login(self.test_username, self.test_password)
-        self.library.add_item(type="book", title="Fiction Book", author="Author1",copies=1, genre="Fiction", year=2024)
-        self.library.add_item(type="book", title="Drama Book", author="Author2",copies=1, genre="Drama", year=2024)
-
+        self.library.add_item(types="book", title="Fiction Book", author="Author1",copies=1, genre="Fiction", year=2024)
+        self.library.add_item(types="book", title="Drama Book", author="Author2",copies=1, genre="Drama", year=2024)
         fiction_books = self.library.display_genre("Fiction")
         self.assertTrue(any(book['title'] == "Fiction Book" for book in fiction_books))
         self.assertFalse(any(book['title'] == "Drama Book" for book in fiction_books))
@@ -65,7 +64,7 @@ class LibraryTest(LibraryTestCase):
 
     def test_waiting_list_system(self):
         self.library.user_login(self.test_username, self.test_password)
-        self.library.add_item(type="book", title="Popular Book",
+        self.library.add_item(types="book", title="Popular Book",
                               author="Author", copies=1, genre="Fiction", year=2024)
         test_book = Books("Popular Book", "Author", "No", 1, "Fiction", 2024, 0)
         self.library.rent_book(test_book)
@@ -80,7 +79,7 @@ class LibraryTest(LibraryTestCase):
     def test_add_and_delete_book(self):
         """Test adding and deleting a book"""
         self.library.user_login(self.test_username, self.test_password)
-        result = self.library.add_item(type="book",title="Test Book15",
+        result = self.library.add_item(types="book",title="Test Book15",
             author="Test Author",copies=1,genre="Fiction",year=2024)
         test_book=Books("Test Book15","Test Author","No",1,"Fiction",2024,0)
         # Verify book was added by searching for it
@@ -97,7 +96,7 @@ class LibraryTest(LibraryTestCase):
     def test_book_rental_system(self):
         """Test the book rental functionality"""
         self.library.user_login(self.test_username, self.test_password)
-        self.library.add_item(type="Book",title="Rental Test Book",
+        self.library.add_item(types="Book",title="Rental Test Book",
             author="Test Author",copies=1,
             genre="Fiction",year=2024
         )
@@ -125,7 +124,7 @@ class LibraryTest(LibraryTestCase):
     def test_waiting_list_system(self):
         self.library.user_login(self.test_username, self.test_password)
 
-        self.library.add_item(type="book", title="Popular Book",
+        self.library.add_item(types="book", title="Popular Book",
                               author="Author", copies=1, genre="Fiction", year=2024)
         test_book = Books("Popular Book", "Author", "No", 1, "Fiction", 2024, 0)
         self.library.rent_book(test_book)
@@ -140,7 +139,7 @@ class LibraryTest(LibraryTestCase):
     def test_display_popular_books(self):
         self.library.user_login(self.test_username, self.test_password)
         for i in range(15):
-            self.library.add_item(type="book", title=f"Book{i}",
+            self.library.add_item(types="book", title=f"Book{i}",
                                   author=f"Author{i}", copies=1, genre="Fiction", year=2024)
             test_book = Books(f"Book{i}", f"Author{i}", "No", 1, "Fiction", 2024, i)
             if i > 5:
