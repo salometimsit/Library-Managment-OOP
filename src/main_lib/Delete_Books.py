@@ -5,8 +5,16 @@ from src.main_lib.FilesHandle import FilesHandle
 
 
 class DeleteBooks:
+    """
+    This class dealing with the deletion of books from the library
+    """
     @staticmethod
     def delete_books(book):
+        """
+        This function deletes the books from the library by cheking if they are exist and no loaned
+        :param book:
+        :return:
+        """
         def normalize_spaces(text):
             return ' '.join(str(text).split())
         __files = FilesHandle().get_file_by_category("book")
@@ -33,22 +41,18 @@ class DeleteBooks:
                 (df_books['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
                 (df_books['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                 (df_books['year'].astype(int) == int(book.get_year())) &
-                (df_books['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())
-                ]
+                (df_books['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())]
 
             book_in_available = df_available[
                 (df_available['title'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_title()).strip().lower()) &
                 (df_available['author'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_author()).strip().lower()) &
                 (df_available['year'].astype(int) == int(book.get_year())) &
-                (df_available['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())
-                ]
+                (df_available['genre'].apply(normalize_spaces).str.lower() == normalize_spaces(book.get_genre()).strip().lower())]
 
             if book_in_books.empty and book_in_available.empty:
                 raise Exception("Delete failed, book not found in books or available books.")
-
             if not book_in_books.empty:
                 DeleteBooks.delete_from_csv(__files[0], book)
-
             if not book_in_available.empty:
                 DeleteBooks.delete_from_csv(__files[1], book)
             return True
@@ -58,6 +62,9 @@ class DeleteBooks:
 
     @staticmethod
     def delete_from_csv(file, book):
+        """
+        This method deletes the book from a given csv file
+        """
         def normalize_spaces(text):
             return ' '.join(str(text).split())
         try:

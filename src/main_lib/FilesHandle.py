@@ -2,7 +2,10 @@ import os
 
 
 class FilesHandle:
-
+    """
+    This class handles all the file operations
+    In their methods we can get different types of files for any classes.
+    """
     @staticmethod
     def get_all_files():
         try:

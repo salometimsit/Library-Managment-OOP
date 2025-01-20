@@ -8,15 +8,17 @@ class Factory_of_Items:
     """
     @staticmethod
     def factory_of_items(types, title, author, copies, genre, year,files):
+        """
+        Getting parameters of item and creating him
+        """
         def normalize_spaces(text):
             return ' '.join(str(text).split())
 
-        if (not normalize_spaces(title) or
-                not normalize_spaces(author) or
-                not normalize_spaces(genre)):
+        if not normalize_spaces(title) or not normalize_spaces(author) or not normalize_spaces(genre):
             return None
         if not isinstance(copies, (int, float)) or not isinstance(year, (int, float)):
             return None
+
         if types.lower() == "book":
             book_files=[]
             for file in files:

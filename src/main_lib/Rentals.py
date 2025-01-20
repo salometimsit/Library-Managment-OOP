@@ -1,6 +1,6 @@
 import csv
 import os
-from typing import Tuple
+from typing import Tuple, Any
 import pandas as pd
 
 from src.main_lib.Books import Books
@@ -18,7 +18,9 @@ class Rentals:
     __instance = None
 
     def __init__(self):
-        """Initialize the Rentals system"""
+        """
+        Initialize the Rentals system
+        """
         if Rentals.__instance is None:
             self.__initialize_files()
             self.__initialize_books()
@@ -26,19 +28,25 @@ class Rentals:
             LibraryServiceLocator.set_rentals(self)
 
     def __initialize_files(self):
-        """Initialize and validate file paths"""
+        """
+        Initialize and validate file paths
+        """
         self.__files = FilesHandle().get_file_by_category("book")
         self.__ensure_waiting_list_column()
 
     def __ensure_waiting_list_column(self):
-        """Ensure waiting_list column exists in not_available_books.csv"""
+        """
+        Ensure waiting_list column exists in not_available_books.csv
+        """
         df = pd.read_csv(self.__files[2])
         if 'waiting_list' not in df.columns:
             df['waiting_list'] = ''
             df.to_csv(self.__files[2], index=False)
 
     def __initialize_books(self):
-        """Load books from CSV into memory"""
+        """
+        Load books from CSV into memory
+        """
         self.__books = []
         with open(self.__files[0], mode='r') as b_csv:
             reader = csv.reader(b_csv)
@@ -102,7 +110,9 @@ class Rentals:
             return False
 
     def add_to_waiting_list(self, book: Books, name: str, phone: str,email: str) -> bool:
-        """Add person to book's waiting list"""
+        """
+        Add person to book's waiting list
+        """
         if self.find_in_csv(book,self.__files[1]):
             return False
         df = pd.read_csv(self.__files[2])
@@ -121,7 +131,6 @@ class Rentals:
 
         waiting_list = current_list.split(';')
 
-        # Check for existing entry
         for entry in waiting_list:
             if ':' in entry:
                 entry_name, entry_phone, entry_email = entry.split(':')
@@ -135,8 +144,10 @@ class Rentals:
         df.to_csv(self.__files[2], index=False)
         return True
 
-    def check_waiting_list(self, book: Books) -> Tuple[str, str, str]:
-        """Get and remove first person from waiting list"""
+    def check_waiting_list(self, book: Books) -> tuple[None, None, None] | tuple[Any, Any, Any]:
+        """
+        Get and remove first person from waiting list
+        """
         df = pd.read_csv(self.__files[2])
         book_filter = self.__create_book_filter(book)
 
@@ -162,7 +173,9 @@ class Rentals:
 
     @Logger.log_method_call("Book borrowed")
     def rent_books(self, book):
-        """Rent a book to a client"""
+        """
+        Rent a book to a client
+        """
         available_book = self.find_in_csv(book, self.__files[1])
         if not available_book:
             self.add_popularity(book)
@@ -176,8 +189,10 @@ class Rentals:
             self.__handle_last_available_copy(book)
         return True
 
-    @Logger.log_method_call("Book returned")
     def __process_book_return(self, book, not_available_book):
+        """
+        Handle book return if this is the last not available book or there are more than 1
+        """
         curr_copies = int(not_available_book['copies'])
         if curr_copies > 1:
             self.__handle_multiple_copy_return(book, curr_copies)
@@ -185,7 +200,11 @@ class Rentals:
             self.__handle_single_copy_return(book)
         return True
 
+    @Logger.log_method_call("Book returned")
     def return_books(self, book):
+        """
+        Return a book that has been rented
+        """
         not_available_book = self.find_in_csv(book, self.__files[2])
         if not not_available_book:
             return False
@@ -216,7 +235,9 @@ class Rentals:
         return True
 
     def add_popularity(self, book):
-        """Increase book popularity across all files"""
+        """
+        Increase book popularity across all files
+        """
         for file_path in self.__files:
             book_entry = self.find_in_csv(book, file_path)
             if book_entry:
@@ -224,7 +245,9 @@ class Rentals:
                 self.update_book_status(book, file_path, {'popularity': current_popularity + 1})
 
     def __handle_not_available_copy(self, book):
-        """Handle adding a copy to not available books"""
+        """
+        Handle adding a copy to not available books
+        """
         not_available = self.find_in_csv(book, self.__files[2])
         if not_available:
             curr = int(not_available['copies'])
@@ -233,7 +256,9 @@ class Rentals:
             self.__add_to_not_available_csv(book, 1)
 
     def __handle_last_available_copy(self, book):
-        """Handle renting the last available copy"""
+        """
+        Handle renting the last available copy
+        """
         not_available = self.find_in_csv(book, self.__files[2])
         if not_available:
             curr = int(not_available['copies'])
@@ -245,7 +270,9 @@ class Rentals:
         self.__remove_from_csv(book, self.__files[1])
 
     def __handle_multiple_copy_return(self, book, curr_copies):
-        """Handle returning one of multiple copies"""
+        """
+        Handle returning one of multiple copies
+        """
         self.update_book_status(book, self.__files[2], {'copies': curr_copies - 1})
         available = self.find_in_csv(book, self.__files[1])
         if available:
@@ -255,20 +282,26 @@ class Rentals:
             self.__add_to_available_csv(book, 1)
 
     def __handle_single_copy_return(self, book):
-        """Handle returning the last copy"""
+        """
+        Handle returning the last copy
+        """
         self.__update_loan_status_in_all_files(book, 'No')
         self.update_book_status(book, self.__files[2], {'copies': 1})
         self.__add_to_available_csv(book, book.get_total_books())
         self.__remove_from_csv(book, self.__files[2])
 
     def __update_loan_status_in_all_files(self, book, status):
-        """Update loan status in all relevant files"""
+        """
+        Update loan status in all relevant files
+        """
         for file_path in self.__files:
             if self.find_in_csv(book, file_path):
                 self.update_book_status(book, file_path, {'is_loaned': status})
 
     def __add_to_available_csv(self, book, copies):
-        """Add book to available books CSV"""
+        """
+        Add book to available books CSV
+        """
         if self.find_in_csv(book, self.__files[1]) is None:
             with open(self.__files[1], mode='a', newline='') as f:
                 writer = csv.writer(f)
@@ -280,7 +313,9 @@ class Rentals:
                 ])
 
     def __add_to_not_available_csv(self, book, copies):
-        """Add book to not available books CSV"""
+        """
+        Add book to not available books CSV
+        """
         if self.find_in_csv(book, self.__files[2]) is None:
             with open(self.__files[2], mode='a', newline='') as f:
                 writer = csv.writer(f)
@@ -293,7 +328,9 @@ class Rentals:
                 ])
 
     def __remove_from_csv(self, book, file):
-        """Remove book from CSV file"""
+        """
+        Remove book from CSV file
+        """
         try:
             df = pd.read_csv(file)
             book_filter = self.__create_book_filter(book)

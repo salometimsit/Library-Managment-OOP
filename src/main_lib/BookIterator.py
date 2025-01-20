@@ -3,6 +3,10 @@ from src.main_lib.FilesHandle import FilesHandle
 
 
 class BookIterator:
+    """
+    This class represent a book iterator, the iterator gets 1 or several conditions to go throw the dataset
+    and this iterator returns the fit iterator fo the conditions.
+    """
     def __init__(self, df,column=None,value=None,filter_conditions=None):
         def normalize_spaces(text):
             return ' '.join(str(text).split())
