@@ -29,7 +29,7 @@ class Factory_of_Items:
 
 
     @staticmethod
-    @Logger.log_method_call("Add book")
+    @Logger.log_method_call("book added")
     def __add_book(title, author, copies, genre, year,files):
         """
         Private method to create a book instance using BooksFactory.

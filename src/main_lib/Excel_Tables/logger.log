@@ -2506,3 +2506,214 @@
 2025-01-20 11:35:12 - Book borrowed successfully
 2025-01-20 11:35:12 - Book borrowed successfully
 2025-01-20 11:35:12 - Book returned successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added fail
+2025-01-21 22:16:07 - book added fail
+2025-01-21 22:16:07 - book added fail
+2025-01-21 22:16:07 - book added fail
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added fail
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added fail
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - logged in successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - Search book 'Test Book15' by title name completed successfully
+2025-01-21 22:16:07 - book removed successfully
+2025-01-21 22:16:07 - Search book 'Test Book15' by title name completed fail
+2025-01-21 22:16:07 - log out successful
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - logged in successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - Displayed borrowed books successfully
+2025-01-21 22:16:07 - book returned successfully
+2025-01-21 22:16:07 - Displayed available books successfully
+2025-01-21 22:16:07 - log out successful
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - logged in successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - Displayed category successfully
+2025-01-21 22:16:07 - Displayed category fail
+2025-01-21 22:16:07 - log out successful
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - logged in successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - book added successfully
+2025-01-21 22:16:07 - book borrowed successfully
+2025-01-21 22:16:07 - Displayed popular books successfully
+2025-01-21 22:16:07 - log out successful
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - log out fail
+2025-01-21 22:16:07 - log out fail
+2025-01-21 22:16:07 - log out successfully
+2025-01-21 22:16:07 - logged in successfully
+2025-01-21 22:16:09 - log out successful
+2025-01-21 22:16:09 - log out successfully
+2025-01-21 22:16:09 - logged in fail
+2025-01-21 22:16:09 - logged in fail
+2025-01-21 22:16:09 - log out fail
+2025-01-21 22:16:09 - log out successfully
+2025-01-21 22:16:09 - log out fail
+2025-01-21 22:16:09 - log out successfully
+2025-01-21 22:16:09 - logged in successfully
+2025-01-21 22:16:09 - log out successful
+2025-01-21 22:16:09 - log out fail
+2025-01-21 22:16:09 - log out successfully
+2025-01-21 22:16:09 - logged in successfully
+2025-01-21 22:16:09 - book added successfully
+2025-01-21 22:16:09 - book borrowed successfully
+2025-01-21 22:16:09 - log out successful
+2025-01-21 22:16:25 - logged in successfully
+2025-01-21 22:16:37 - book added successfully
+2025-01-21 22:16:49 - Search book '1999' by year name completed successfully
+2025-01-21 22:16:54 - book borrowed successfully
+2025-01-21 22:17:00 - book returned successfully
+2025-01-21 22:17:04 - book borrowed successfully
+2025-01-21 22:17:10 - book borrowed fail
+2025-01-21 22:17:39 - Search book '1999' by year name completed successfully
+2025-01-21 22:17:47 - book returned successfully
+2025-01-21 22:18:00 - book returned successfully
+2025-01-21 22:20:18 - logged in successfully
+2025-01-21 22:20:32 - Search book '1999' by year name completed successfully
+2025-01-21 22:20:34 - book borrowed successfully
+2025-01-21 22:20:39 - book borrowed fail
+2025-01-21 22:21:04 - Search book '1999' by year name completed successfully
+2025-01-21 22:21:07 - book borrowed successfully
+2025-01-21 22:21:07 - book returned successfully
+2025-01-21 22:21:42 - book borrowed fail
+2025-01-21 22:22:02 - Search book '1999' by year name completed successfully
+2025-01-21 22:22:04 - book borrowed fail
+2025-01-21 22:22:30 - Search book '1999' by year name completed successfully
+2025-01-21 22:22:36 - book borrowed successfully
+2025-01-21 22:22:36 - book returned successfully
+2025-01-21 22:22:52 - book borrowed successfully
+2025-01-21 22:22:52 - book returned successfully
+2025-01-21 22:23:34 - log out successful
+2025-01-21 22:30:32 - log out successfully
+2025-01-21 22:30:39 - log out successfully
+2025-01-21 22:30:43 - logged in successfully
+2025-01-21 22:30:52 - Search book '1999' by year name completed successfully
+2025-01-21 22:30:54 - book borrowed fail
+2025-01-21 22:31:32 - Search book '1999' by year name completed successfully
+2025-01-21 22:31:35 - book borrowed successfully
+2025-01-21 22:31:35 - book returned successfully
+2025-01-21 22:40:03 - logged in successfully
+2025-01-21 22:40:08 - Displayed popular books successfully
+2025-01-21 22:40:20 - Displayed all books successfully
+2025-01-21 22:40:22 - Displayed available books successfully
+2025-01-21 22:40:24 - Displayed borrowed books successfully
+2025-01-21 22:40:29 - Displayed popular books successfully
+2025-01-21 22:40:34 - Displayed category books successfully
+2025-01-21 22:40:41 - log out successful
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added fail
+2025-01-21 22:41:02 - book added fail
+2025-01-21 22:41:02 - book added fail
+2025-01-21 22:41:02 - book added fail
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added fail
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added fail
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - logged in successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - Search book 'Test Book15' by title name completed successfully
+2025-01-21 22:41:02 - book removed successfully
+2025-01-21 22:41:02 - Search book 'Test Book15' by title name completed fail
+2025-01-21 22:41:02 - log out successful
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - logged in successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - Displayed borrowed books successfully
+2025-01-21 22:41:02 - book returned successfully
+2025-01-21 22:41:02 - Displayed available books successfully
+2025-01-21 22:41:02 - log out successful
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - logged in successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - Displayed category books successfully
+2025-01-21 22:41:02 - Displayed category books fail
+2025-01-21 22:41:02 - log out successful
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - logged in successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - book added successfully
+2025-01-21 22:41:02 - book borrowed successfully
+2025-01-21 22:41:02 - Displayed popular books successfully
+2025-01-21 22:41:02 - log out successful
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - log out fail
+2025-01-21 22:41:02 - log out fail
+2025-01-21 22:41:02 - log out successfully
+2025-01-21 22:41:02 - logged in successfully
+2025-01-21 22:41:05 - log out successful
+2025-01-21 22:41:05 - log out successfully
+2025-01-21 22:41:05 - logged in fail
+2025-01-21 22:41:05 - logged in fail
+2025-01-21 22:41:05 - log out fail
+2025-01-21 22:41:05 - log out successfully
+2025-01-21 22:41:05 - log out fail
+2025-01-21 22:41:05 - log out successfully
+2025-01-21 22:41:05 - logged in successfully
+2025-01-21 22:41:05 - log out successful
+2025-01-21 22:41:05 - log out fail
+2025-01-21 22:41:05 - log out successfully
+2025-01-21 22:41:05 - logged in successfully
+2025-01-21 22:41:05 - book added successfully
+2025-01-21 22:41:05 - book borrowed successfully
+2025-01-21 22:41:05 - log out successful
+2025-01-21 22:41:05 - book borrowed successfully
+2025-01-21 22:41:05 - book borrowed successfully
+2025-01-21 22:41:05 - book borrowed successfully
+2025-01-21 22:41:05 - book returned successfully

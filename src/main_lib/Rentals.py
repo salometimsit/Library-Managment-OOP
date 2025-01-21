@@ -171,7 +171,7 @@ class Rentals:
                                 {'waiting_list': ';'.join(entries[1:])})
         return name.strip(), phone.strip() ,email.strip()
 
-    @Logger.log_method_call("Book borrowed")
+    @Logger.log_method_call("book borrowed")
     def rent_books(self, book):
         """
         Rent a book to a client
@@ -200,7 +200,6 @@ class Rentals:
             self.__handle_single_copy_return(book)
         return True
 
-    @Logger.log_method_call("Book returned")
     def return_books(self, book):
         """
         Return a book that has been rented
@@ -223,9 +222,10 @@ class Rentals:
 
         return_success = self.__process_book_return(book, not_available_book)
         if not return_success:
+            Logger.log_add_message("book returned fail")
             return False
-
-        if name and phone:
+        Logger.log_add_message("book returned successfully")
+        if name and phone and email:
             msg = (f"The Book '{book.get_title()}' has been returned and should be transferred to {name},\n"
                    f" Phone: {phone} \n Email: {email}")
             self.get_library().notify(msg)

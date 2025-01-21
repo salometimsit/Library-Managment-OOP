@@ -77,7 +77,7 @@ class Library(Subject):
         """
         return LibraryServiceLocator.get_rentals()
 
-    @Logger.log_method_call("Logged in")
+    @Logger.log_method_call("logged in")
     def user_login(self, username, password):
         """
         Logs in a user if credentials are correct.
@@ -108,7 +108,7 @@ class Library(Subject):
         return True
 
 
-    @Logger.log_method_call("Logged out")
+    @Logger.log_method_call("log out")
     def user_register(self, fullname, username, password):
         """
         Registers a new user.
@@ -127,7 +127,6 @@ class Library(Subject):
             self.add_user(fullname,username,"librarian",password)
             return True
 
-    @Logger.log_method_call("Logged out")
     def user_logout(self):
         """
        Logs out the current librarian.
@@ -138,8 +137,10 @@ class Library(Subject):
         if self.current_librarian is not None:
             self.unsubscribe(self.current_librarian)
             self.current_librarian=None
+            Logger.log_add_message("log out successful")
             return True
         else:
+            Logger.log_add_message("log out fail")
             return False
 
 
@@ -172,7 +173,6 @@ class Library(Subject):
         if role == "librarian":
             self.subscribe(new_user)
 
-
     def rent_book(self, book):
         """
        Rents a book to a user.
@@ -181,7 +181,6 @@ class Library(Subject):
        """
         rentals = self.get_rentals()
         return rentals.rent_books(book)
-
 
     def return_book(self, book):
         """
@@ -192,6 +191,7 @@ class Library(Subject):
         rentals = self.get_rentals()
         return rentals.return_books(book)
 
+    @Logger.log_method_call("Displayed all books")
     def display_all_books(self):
         """
         Displays all books in the library.
@@ -202,11 +202,10 @@ class Library(Subject):
         """
         df = pd.read_csv(self.__book_files[0])
         if df.empty:
-            Logger.log_add_message("Displayed all books fail")
             raise FileNotFoundError("File not found")
-        Logger.log_add_message("Displayed all books successfully")
         return df.to_dict(orient='records')
 
+    @Logger.log_method_call("Displayed borrowed books")
     def display_not_available_books(self):
         """
        Displays books that are currently loaned out.
@@ -217,11 +216,10 @@ class Library(Subject):
        """
         df = pd.read_csv(self.__book_files[2])
         if df.empty:
-            Logger.log_add_message("Displayed borrowed books fail")
             raise FileNotFoundError("File not found")
-        Logger.log_add_message("Displayed borrowed books successfully")
         return df.to_dict(orient='records')
 
+    @Logger.log_method_call("Displayed available books")
     def display_available_books(self):
         """
        Displays books that are currently available in the library.
@@ -232,11 +230,10 @@ class Library(Subject):
        """
         df = pd.read_csv(self.__book_files[1])
         if df.empty:
-            Logger.log_add_message("Displayed available books fail")
             raise FileNotFoundError("File not found")
-        Logger.log_add_message("Displayed available books successfully")
         return df.to_dict(orient='records')
 
+    @Logger.log_method_call("Displayed popular books")
     def display_popular_books(self):
         """
        Displays the top 10 most popular books in the library.
@@ -250,15 +247,13 @@ class Library(Subject):
        """
         df = pd.read_csv(self.__book_files[0])
         if df.empty:
-            Logger.log_add_message("Displayed popular books fail")
             raise FileNotFoundError("File not found")
         if 'popularity' not in df.columns:
-            Logger.log_add_message("Displayed popular books fail")
             raise KeyError("Column 'popularity' not found in the dataset")
         top_10_books = df.sort_values(by='popularity', ascending=False).head(10)
-        Logger.log_add_message("Displayed popular books successfully")
         return top_10_books.to_dict(orient='records')
 
+    @Logger.log_method_call("Displayed category books")
     def display_genre(self, category):
         """
         Displays books by genre.
@@ -268,10 +263,8 @@ class Library(Subject):
         self.searcher.set_strategy("genre")
         result=self.searcher.search_all(category)
         if result== []:
-            Logger.log_add_message("Displayed category fail")
             return []
         else:
-            Logger.log_add_message("Displayed category successfully")
             return result
 
 
