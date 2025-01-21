@@ -277,9 +277,15 @@ class Library(Subject):
         self.searcher.set_strategy(strategy)
         df = self.searcher.search_all(name)
         if df == []:
-            Logger.log_add_message(f"Search book '{name}' by {strategy} name completed fail")
+            if strategy.lower() != "year":
+                Logger.log_add_message(f"Search book '{name}' by {strategy} name completed fail")
+            else:
+                Logger.log_add_message(f"Search book '{name}' by {strategy} completed fail")
         else:
-            Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
+            if strategy.lower() != "year":
+                Logger.log_add_message(f"Search book '{name}' by {strategy} name completed successfully")
+            else:
+                Logger.log_add_message(f"Search book '{name}' by {strategy} completed successfully")
         return df
 
     def add_to_waiting_list(self, book,name,phone,email):
