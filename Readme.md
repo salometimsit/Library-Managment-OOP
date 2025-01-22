@@ -1,152 +1,223 @@
+# 📚 Library Management System
 
-# Library Management System
+A Python-based library management system implementing Object-Oriented Programming principles and design patterns. Created as part of a second-year Computer Science project.
 
-This project is a library management system implemented in Python, utilizing various design patterns and a graphical user interface (GUI) for user interaction. The system allows librarians to manage books, track rentals, and handle waiting lists efficiently.
+## 🎯 Project Goals
+- Implementation of OOP principles and design patterns
+- Development of a complete library management system
+- Creation of user-friendly interface
+- Demonstration of software engineering best practices
 
-## Features
-
-- User authentication: Librarians can log in and register to access the system.
-- Book management: Librarians can add new books, remove books, and update book information.
-- Book search: Users can search for books based on title, author, year, or genre.
-- Book rental: Users can rent available books and return borrowed books.
-- Waiting list: If a book is not available, users can join a waiting list to be notified when the book becomes available.
-- Book popularity tracking: The system keeps track of the popularity of each book based on rental history.
-- Logging: Important actions and events are logged for monitoring and debugging purposes.
-
-## Design Patterns
-
-The following design patterns have been implemented in this project:
-
-1. **Strategy Pattern**: Used for implementing different search strategies (title, author, year, genre) in the `SearchBooks` class.
-
-2. **Decorator Pattern**: Utilized in the `Logger` class to log method calls and add messages to the log file.
-
-3. **Factory Pattern**: Implemented in the `BooksFactory` class to create new books or update existing book information.
-
-4. **Iterator Pattern**: Used in the `BookIterator` class to navigate through the book collections during search operations.
-
-5. **Observer Pattern**: Applied in the `Subject` and `Observer` classes to notify librarians when a book with a waiting list is returned and to inform them about the next person in line to receive the book.
-
-6. **Singleton Pattern**: The `Library` class is implemented as a singleton, ensuring that only one instance of the library exists throughout the system.
-
-## Getting Started
+## ⚡️ Quick Start
 
 ### Prerequisites
-
 - Python 3.x
-- Required Python packages: pandas, tkinter
+- pandas (for data management)
+- tkinter (for GUI interface)
 
 ### Installation
+```bash
+# Clone repository
+git clone https://github.com/your-username/library-management-system.git
 
-1. Clone the repository:
+# Install dependencies
+pip install pandas
 
-   ```bash
-   git clone https://github.com/your-username/library-management-system.git
-   ```
+# Run application
+python OUR_GUI.py
+```
 
-2. Install the required packages:
+## 🏗️ Project Structure
+```
+library-management-system/
+├── src/
+│   ├── main_lib/          # Core library functionality
+│   │   ├── Excel_Tables/  # Data storage
+│   │   └── [Core modules]
+│   └── Tests/             # Test suite
+└── OUR_GUI.py            # GUI implementation
+```
 
-   ```bash
-   pip install pandas tkinter
-   ```
+## 📊 Data Management
+```python
+Data Storage Structure:
+├── books.csv              # Master book database
+├── available_books.csv    # Currently available books
+├── not_available_books.csv# Borrowed books & waiting lists
+├── users.csv             # User credentials (encrypted)
+└── logger.log            # System activity logs
+```
 
-### Usage
+## 🔒 Security & Authorization
+- Role-based access control (Librarian roles)
+- Password encryption and secure storage
+- Activity logging and audit trail
+- Session management
+- Secure file operations
 
-1. Navigate to the project directory:
+## 💡 Features & Design Patterns
 
-   ```bash
-   cd library-management-system
-   ```
+### 1. Decorator Pattern (Logging System)
+```python
+@Logger.log_method_call("book borrowed")
+def rent_books(self, book):
+    """
+    Handles book rental operations with automatic logging
+    """
+    try:
+        # Rental logic
+        success = process_rental(book)
+        return success
+    except Exception as e:
+        Logger.log_add_message(f"Rental failed: {str(e)}")
+        return False
+```
 
-2. Run the main script:
+### 2. Strategy Pattern (Search System)
+```python
+class SearchStrategy:
+    def search(self, df, value):
+        raise NotImplementedError()
 
-   ```bash
-   python OUR_GUI.py
-   ```
+class TitleSearch(SearchStrategy):
+    def search(self, df, value):
+        return df[df['title'].str.contains(value, case=False)]
+```
 
-3. The library management system GUI will open.
+### 3. Observer Pattern (Notification System)
+```python
+class LibraryObserver:
+    def update(self, message):
+        # Handle notification
+        pass
 
-4. Use the provided login credentials or register a new librarian account to access the system.
+class Library(Subject):
+    def return_book(self, book):
+        # Book return logic
+        self.notify("Book returned and available")
+```
 
-5. Explore the various features of the system, such as adding books, searching for books, renting books, and managing waiting lists.
+### 4. Singleton Pattern (Library Management)
+```python
+class Library:
+    __instance = None
+    
+    @staticmethod
+    def get_instance():
+        if Library.__instance is None:
+            Library.__instance = Library()
+        return Library.__instance
+```
 
-6. Log out when finished using the system.
+### 5. Factory Pattern (Book Creation)
+```python
+class BooksFactory:
+    def create_books(self, title, author, copies, genre, year):
+        if self._validate_input(title, author, copies, genre, year):
+            return Books(title, author, "No", copies, genre, year, 0)
+        return None
+```
 
-## GUI Walkthrough
+### 6. Iterator Pattern (Book Collection)
+```python
+class BookIterator:
+    def __iter__(self):
+        return self
 
-1. **Login Screen**:
-   - Enter your username and password to log in.
-   - If you don't have an account, click the "Register" button to create a new librarian account.
+    def __next__(self):
+        if self.index >= len(self.collection):
+            raise StopIteration
+        book = self.collection[self.index]
+        self.index += 1
+        return book
+```
 
-2. **Main Screen**:
-   - The main screen provides access to different functionalities of the library management system.
-   - Click on the respective buttons to add a book, remove a book, search for a book, view books, or view popular books.
-   - Use the "Logout" button to log out of the system.
+## 📝 Waiting List System
+- Automatic queue management for popular books
+- Email and phone number collection
+- Automatic notifications on book return
+- Priority-based allocation
+- Multiple waiting lists tracking
 
-3. **Search Screen**:
-   - Select the search strategy (title, author, year, or genre) using the radio buttons.
-   - Enter the search term in the provided entry field.
-   - Click the "Search" button to retrieve matching books.
-   - The search results will be displayed in a table format.
-   - To rent a book, select a book from the table and click the "Lend Book" button.
-   - To return a book, select a book from the table and click the "Return Book" button.
+## 🖥️ GUI Interface Guide
 
-4. **Add Book Screen**:
-   - Enter the details of the book you want to add, including title, author, number of copies, category, and year.
-   - Click the "Add Book" button to add the book to the library.
+### 1. Login Screen
+<img src="login_screenshot.png" width="250" alt="Login Screen"/>
 
-5. **Remove Book Screen**:
-   - Enter the details of the book you want to remove, including title, author, category, and year.
-   - Click the "Remove Book" button to remove the book from the library.
+- Secure user authentication
+- New user registration
+- Password encryption
 
-6. **Display Books Screen**:
-   - Select a category from the dropdown menu to filter the books (All Books, Available Books, Not Available Books, Popular Books, or a specific genre).
-   - Click the "Display Books" button to view the books in the selected category.
+### 2. Main Dashboard
+<img src="main_screenshot.png" width="250" alt="Login Screen"/>
 
-7. **Popular Books Screen**:
-   - This screen displays the top 10 most popular books based on rental history.
+- Centralized navigation
+- Quick access to all features
+- User role display
+- System status indicators
 
-8. **Waiting List Entry**:
-   - If a book is not available and you want to join the waiting list, you will be prompted with a confirmation dialog.
-   - Click "Yes" to proceed to the waiting list form.
-   - Enter your name and phone number in the provided fields.
-   - Click the "Add to Waiting List" button to join the waiting list for the book.
+### 3. Book Management
+<img src="add_book_screenshot.png" width="250" alt="Login Screen"/>
 
-## File Structure
+- Comprehensive book details
+- Input validation
+- Genre categorization
+- Copy tracking
 
-The project directory contains the following files and folders:
+### 4. Search Interface
+<img src="search_screenshot.png" width="250" alt="Login Screen"/>
 
-- `OUR_GUI.py`: The main script that runs the library management system GUI.
-- `src/main_lib/`: Contains the source code files for the library management system.
-  - `Excel_Tables/`: Contains CSV files for storing book, user, and log data.
-    - `books.csv`: Stores information about all books in the library.
-    - `available_books.csv`: Stores information about currently available books.
-    - `not_available_books.csv`: Stores information about currently borrowed books and waiting lists.
-    - `users.csv`: Stores user (librarian) information.
-    - `logger.log`: Stores log messages for monitoring and debugging purposes.
-  - `Library.py`: Defines the `Library` class, which is the central component of the system.
-  - `Books.py`: Defines the `Books` class, representing a book in the library.
-  - `BooksCategory.py`: Defines the `BooksCategory` enum for book genres.
-  - `BooksFactory.py`: Implements the factory pattern for creating and updating books.
-  - `BookIterator.py`: Implements the iterator pattern for navigating book collections.
-  - `Delete_Books.py`: Provides functionality for deleting books from the library.
-  - `LibraryServiceLocator.py`: Implements a service locator for accessing library and rental services.
-  - `Logger.py`: Implements the decorator pattern for logging method calls and messages.
-  - `Observer.py`: Defines the `Observer` interface for the observer pattern.
-  - `Rentals.py`: Manages the rental system for the library.
-  - `Search_Books.py`: Implements the search functionality for books.
-  - `SearchStrategy.py`: Defines different search strategies using the strategy pattern.
-  - `Subject.py`: Defines the `Subject` class for the observer pattern.
-  - `Users.py`: Defines the `User` class, representing users (librarians) of the system.
+- Multiple search strategies
+- Real-time results
+- Advanced filtering
+- Rental operations
 
-## Contributing
+### 5. Book Display
+<img src="display_screenshot.png" width="250" alt="Login Screen"/>
 
-Contributions to the library management system are welcome! If you find any bugs, have suggestions for improvements, or want to add new features, please submit an issue or a pull request on the project's GitHub repository.
+- Category-based views
+- Status indicators
+- Sorting capabilities
+- Waiting list status
 
-## License
+## 🧪 Testing
+```python
+class TestFramework:
+    """
+    Comprehensive test coverage includes:
+    - Unit tests for all components
+    - Integration testing
+    - Edge case handling
+    - Mock objects
+    - File operation tests
+    - Authentication testing
+    """
+```
 
-This project is licensed under the [MIT License](LICENSE).
+Run tests:
+```bash
+python -m unittest discover src/Tests
+```
 
-## Created by:
-<b>Itay Segev <br>
-Salome Timsit<b/>
+## 🛡️ Technical Features
+- Event-driven architecture
+- Robust error handling
+- Data validation
+- File operation safety
+- Session management
+- Logging system
+
+## 🔍 SOLID Principles
+- **S**ingle Responsibility: Each class has one purpose
+- **O**pen/Closed: Extensible search strategies
+- **L**iskov Substitution: Interchangeable components
+- **I**nterface Segregation: Minimal interfaces
+- **D**ependency Inversion: Abstract dependencies
+
+## 👥 Contributors
+Created by:
+- Itay Segev
+- Salome Timsit
+
+## 📄 License
+This project is licensed under the MIT License.

@@ -3187,3 +3187,8 @@
 2025-01-22 19:42:51 - book borrowed successfully
 2025-01-22 19:42:51 - book borrowed successfully
 2025-01-22 19:42:51 - book returned successfully
+2025-01-22 19:59:52 - logged in successfully
+2025-01-22 20:00:26 - Search book 'the' by title name completed successfully
+2025-01-22 20:00:39 - Displayed borrowed books successfully
+2025-01-22 20:00:47 - Displayed popular books successfully
+2025-01-22 20:00:55 - log out successful
