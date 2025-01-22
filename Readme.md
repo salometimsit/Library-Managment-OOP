@@ -194,9 +194,10 @@ class TestFramework:
     """
 ```
 
-Run tests:
+## Running Tests
+To run all tests:
 ```bash
-python -m unittest discover src/Tests
+PYTHONPATH=$PYTHONPATH:. python src/Tests/TestsSuite.py
 ```
 
 ## 🛡️ Technical Features
