@@ -92,7 +92,6 @@ class Rentals:
             df = pd.read_csv(file_path)
             book_filter = self.__create_book_filter(book)
 
-            # Convert updates values to appropriate types
             converted_updates = {}
             for key, value in updates.items():
                 if key in ['copies', 'popularity']:
@@ -203,6 +202,7 @@ class Rentals:
     def return_books(self, book):
         """
         Return a book that has been rented
+        and dealing with his waiting list, and update the librarian if there is someone
         """
         not_available_book = self.find_in_csv(book, self.__files[2])
         if not not_available_book:

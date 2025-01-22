@@ -3093,3 +3093,10 @@
 2025-01-22 15:41:27 - book returned successfully
 2025-01-22 15:41:37 - book borrowed successfully
 2025-01-22 15:41:57 - log out successful
+2025-01-22 19:41:29 - logged in successfully
+2025-01-22 19:41:46 - Search book 'itay' by title name completed successfully
+2025-01-22 19:41:49 - Search book 'itays' by title name completed fail
+2025-01-22 19:41:56 - Displayed borrowed books successfully
+2025-01-22 19:42:02 - Displayed category books successfully
+2025-01-22 19:42:05 - Displayed popular books successfully
+2025-01-22 19:42:14 - log out successful

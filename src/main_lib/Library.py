@@ -137,7 +137,7 @@ class Library(Subject):
         if self.current_librarian is not None:
             self.unsubscribe(self.current_librarian)
             self.current_librarian=None
-            Logger.log_add_message("log out successful")
+            Logger.log_add_message("log out successful") #here we added it manually cause the message is successful
             return True
         else:
             Logger.log_add_message("log out fail")

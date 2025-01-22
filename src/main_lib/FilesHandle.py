@@ -8,6 +8,9 @@ class FilesHandle:
     """
     @staticmethod
     def get_all_files():
+        """
+        This method gets all the files in the current working directory
+        """
         try:
             filenames = ['Excel_Tables/books.csv', 'Excel_Tables/available_books.csv',
                          'Excel_Tables/not_available_books.csv','Excel_Tables/users.csv','Excel_Tables/logger.log']
@@ -27,6 +30,10 @@ class FilesHandle:
 
     @staticmethod
     def get_file_by_category(types:str):
+        """
+        This method gets all the files in the current working directory
+        :return: the files of the given type
+        """
         try:
             files = []
             for file in FilesHandle.get_all_files():
@@ -43,6 +50,10 @@ class FilesHandle:
 
     @staticmethod
     def get_logger_file():
+        """
+        This method gets all the files in the current working directory
+        :return: the file of the logger file
+        """
         file_path = os.path.join(os.path.dirname(__file__), 'Excel_Tables/logger.log')
         file_path = os.path.abspath(file_path)
 
