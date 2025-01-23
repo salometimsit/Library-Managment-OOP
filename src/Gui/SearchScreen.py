@@ -18,7 +18,7 @@ class SearchScreen(WindowInterface):
 
     def display(self):
         self._root.title("Search Books")
-        self._root.geometry("800x650")
+        self._root.geometry("800x680")
 
         tk.Label(self._root, text="Select Search Strategy:").pack(pady=10)
 
