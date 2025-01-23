@@ -19,14 +19,16 @@ A Python-based library management system implementing Object-Oriented Programmin
 ```bash
 # Clone repository
 git clone https://github.com/your-username/library-management-system.git
-
-# Install dependencies
-pip install pandas
-
-# Run application
-python GUIMain.py
 ```
 
+### Install dependencies
+```bash
+pip install pandas
+```
+### Run application
+```
+python3 GUIMain.py
+```
 ## 🏗️ Project Structure
 ```
 library-management-system/

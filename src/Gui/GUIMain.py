@@ -2,7 +2,7 @@ import tkinter as tk
 from src.Gui.LogginScreen import LoginScreen
 from src.main_lib.Library import Library
 
-class GUIActivating():
+class GUIActivating:
     def __init__(self):
         self.library = Library.get_instance()
         self.root = tk.Tk()
