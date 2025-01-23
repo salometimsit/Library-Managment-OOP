@@ -24,28 +24,33 @@ git clone https://github.com/your-username/library-management-system.git
 pip install pandas
 
 # Run application
-python OUR_GUI.py
+python GUIMain.py
 ```
 
 ## 🏗️ Project Structure
 ```
 library-management-system/
-├── src/
-│   ├── main_lib/          # Core library functionality
-│   │   ├── Excel_Tables/  # Data storage
-│   │   └── [Core modules]
-│   └── Tests/             # Test suite
-└── OUR_GUI.py            # GUI implementation
+ ── src/
+    ├── Gui/ # GUI implementation   # Core GUI functionality
+    │   ├── [GUI Core Classes]      # GUI functionality
+    │   └── GUIMain.py              # The Main class for GUI running
+    ├── main_lib/                   # Core library functionality
+    │   ├── Excel_Tables/           # Data storage
+    │   └── [Core modules]          # Core library functionality
+    └── Tests/                      # Test suite          
+        ├──[Core Tests]             # All the Tests
+        └──TestsSuite.py            # Main activate for all Tests
+    
 ```
 
 ## 📊 Data Management
 ```python
 Data Storage Structure:
-├── books.csv              # Master book database
-├── available_books.csv    # Currently available books
-├── not_available_books.csv# Borrowed books & waiting lists
-├── users.csv             # User credentials (encrypted)
-└── logger.log            # System activity logs
+├── books.csv                   # Master book database
+├── available_books.csv         # Currently available books
+├── not_available_books.csv     # Borrowed books & waiting lists
+├── users.csv                   # User credentials (encrypted)
+└── logger.log                  # System activity logs
 ```
 
 ## 🔒 Security & Authorization
@@ -197,7 +202,7 @@ class TestFramework:
 ## Running Tests
 To run all tests:
 ```bash
-PYTHONPATH=$PYTHONPATH:. python src/Tests/TestsSuite.py
+PYTHONPATH=$PYTHONPATH:. python3 src/Tests/TestsSuite.py
 ```
 
 ## 🛡️ Technical Features

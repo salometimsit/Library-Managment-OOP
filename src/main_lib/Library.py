@@ -108,7 +108,7 @@ class Library(Subject):
         return True
 
 
-    @Logger.log_method_call("log out")
+    @Logger.log_method_call("registered")
     def user_register(self, fullname, username, password):
         """
         Registers a new user.

@@ -8,7 +8,7 @@ War and Peace,Leo Tolstoy,No,2,Historical Fiction,1869,0
 Great Expectations,Charles Dickens,No,3,Classic,1861,0
 Crime and Punishment,Fyodor Dostoevsky,Yes,1,Psychological Drama,1866,0
 The Brothers Karamazov,Fyodor Dostoevsky,No,3,Philosophy,1880,0
-The Divine Comedy,Dante Alighieri,Yes,1,Epic Poetry,1320,0
+The Divine Comedy,Dante Alighieri,Yes,1,Epic Poetry,1320,1
 Jane Eyre,Charlotte Brontë,No,2,Gothic Fiction,1847,0
 Wuthering Heights,Emily Brontë,No,4,Gothic Romance,1847,0
 Anna Karenina,Leo Tolstoy,Yes,2,Fiction,1877,0
@@ -35,4 +35,4 @@ The Odyssey,Homer,No,2,Epic Poetry,-800,1
 itay segev life story,itay segev,No,6,Realism,1999,29
 salome timsit life story,salome timsit,No,6,Realism,2002,0
 tahel,tahel,No,100,Tragedy,2015,0
-s,s,Yes,1,Drama,1999,7
+s,s,Yes,1,Drama,1999,8

@@ -3366,3 +3366,42 @@
 2025-01-22 20:35:02 - book borrowed successfully
 2025-01-22 20:35:02 - book borrowed successfully
 2025-01-22 20:35:02 - book returned successfully
+2025-01-22 20:37:19 - logged in successfully
+2025-01-22 20:37:43 - Displayed available books successfully
+2025-01-22 20:37:50 - Displayed category books successfully
+2025-01-22 20:37:58 - Search book 'the' by title name completed successfully
+2025-01-22 20:38:01 - book borrowed successfully
+2025-01-22 20:38:04 - book returned successfully
+2025-01-22 20:38:08 - book borrowed fail
+2025-01-22 20:38:18 - Displayed popular books successfully
+2025-01-22 20:38:25 - log out successful
+2025-01-23 11:11:38 - logged in successfully
+2025-01-23 11:11:47 - Search book 'itay' by title name completed successfully
+2025-01-23 11:11:51 - book borrowed successfully
+2025-01-23 11:11:53 - book returned successfully
+2025-01-23 11:11:58 - Displayed borrowed books successfully
+2025-01-23 11:12:01 - Displayed popular books successfully
+2025-01-23 11:12:04 - Displayed category books successfully
+2025-01-23 11:12:16 - book added successfully
+2025-01-23 11:12:54 - Search book '1999' by year completed successfully
+2025-01-23 11:13:03 - log out successful
+2025-01-23 11:13:08 - registered successfully
+2025-01-23 11:13:14 - registered fail
+2025-01-23 11:15:23 - logged in successfully
+2025-01-23 11:16:49 - logged in successfully
+2025-01-23 11:16:59 - book removed successfully
+2025-01-23 11:17:03 - log out successful
+2025-01-23 11:23:11 - logged in successfully
+2025-01-23 11:23:13 - log out successful
+2025-01-23 11:23:17 - logged in successfully
+2025-01-23 11:23:23 - Search book '1999' by year completed successfully
+2025-01-23 11:23:26 - book borrowed fail
+2025-01-23 11:23:48 - Search book '1999' by year completed successfully
+2025-01-23 11:23:52 - book returned successfully
+2025-01-23 11:23:54 - book borrowed successfully
+2025-01-23 11:23:59 - book returned successfully
+2025-01-23 11:24:04 - book borrowed successfully
+2025-01-23 11:24:07 - book returned successfully
+2025-01-23 11:24:10 - book borrowed successfully
+2025-01-23 11:24:17 - Displayed borrowed books successfully
+2025-01-23 11:24:19 - log out successful
