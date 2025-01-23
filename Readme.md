@@ -118,10 +118,10 @@ class Library:
 
 ### 5. Factory Pattern (Book Creation)
 ```python
-class BooksFactory:
-    def create_books(self, title, author, copies, genre, year):
-        if self._validate_input(title, author, copies, genre, year):
-            return Books(title, author, "No", copies, genre, year, 0)
+class Factory_of_Items:
+    @staticmethod
+    def factory_of_items(types, title, author, copies, genre, year,files):
+            return Factory_of_Items.__add_book(title, author, copies, genre, year,files)
         return None
 ```
 
